@@ -6,6 +6,9 @@
 #if QCOM2
 #include "system/hardware/tici/hardware.h"
 #define Hardware HardwareTici
+#elif QCOM
+#include "system/hardware/eon/hardware.h"
+#define Hardware HardwareEon
 #else
 #include "system/hardware/pc/hardware.h"
 #define Hardware HardwarePC
