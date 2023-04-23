@@ -1,6 +1,6 @@
 //==============================================================================
 //
-//  Copyright (c) 2015-2021 Qualcomm Technologies, Inc.
+//  Copyright (c) 2015 Qualcomm Technologies, Inc.
 //  All Rights Reserved.
 //  Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -21,9 +21,9 @@ namespace zdl {
 }
 
 namespace zdl { namespace DlSystem {
+/** @addtogroup c_plus_plus_apis C++
+@{ */
 /**
- * NOTE: DEPRECATED, MAY BE REMOVED IN THE FUTURE.
- *
  * @brief .
  *
  * Definition of UDLFactoyFunc, using/typedef and default FactoryFunction
@@ -47,8 +47,6 @@ namespace zdl { namespace DlSystem {
 using UDLFactoryFunc = std::function<zdl::DlSystem::IUDL* (void*, const zdl::DlSystem::UDLContext*)>;
 
 /**
- * NOTE: DEPRECATED, MAY BE REMOVED IN THE FUTURE.
- *
  * @brief .
  *
  * default UDL factory implementation
@@ -67,8 +65,6 @@ using UDLFactoryFunc = std::function<zdl::DlSystem::IUDL* (void*, const zdl::DlS
 inline ZDL_EXPORT zdl::DlSystem::IUDL* DefaultUDLFunc(void*, const zdl::DlSystem::UDLContext*) { return nullptr; }
 
 /**
- * NOTE: DEPRECATED, MAY BE REMOVED IN THE FUTURE.
- *
  * @brief .
  * 
  * Simple struct to bundle 2 elements.
@@ -81,6 +77,7 @@ struct ZDL_EXPORT UDLBundle {
    UDLFactoryFunc func   = DefaultUDLFunc;
 };
 
+/** @} */ /* end_addtogroup c_plus_plus_apis C++ */
 }}
 
 

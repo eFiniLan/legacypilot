@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright (c) 2019-2021 Qualcomm Technologies, Inc.
+// Copyright (c) 2019-2020 Qualcomm Technologies, Inc.
 // All Rights Reserved.
 // Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -23,9 +23,6 @@ extern "C"
 
 typedef struct _SnpeUdo_OpFactory_t* SnpeUdo_OpFactory_t;
 typedef struct _SnpeUdo_Operation_t* SnpeUdo_Operation_t;
-
-typedef SnpeUdo_OpFactory_t Udo_OpFactory_t;
-typedef SnpeUdo_Operation_t Udo_Operation_t;
 
 /**
  * @brief Initialize the shared library's data structures. Calling any other
@@ -95,8 +92,6 @@ SnpeUdo_getImpInfo(SnpeUdo_ImpInfo_t** implementationInfo);
 typedef SnpeUdo_ErrorType_t
 (*SnpeUdo_GetImpInfoFunction_t)(SnpeUdo_ImpInfo_t** implementationInfo);
 
-typedef SnpeUdo_GetImpInfoFunction_t Udo_GetImpInfoFunction_t;
-
 /**
  * @brief A function to create an operation factory.
  *        The function receives the operation type, and an array of static parameters,
@@ -135,7 +130,6 @@ typedef SnpeUdo_ErrorType_t
                                      SnpeUdo_Param_t*,
                                      SnpeUdo_OpFactory_t*);
 
-typedef SnpeUdo_CreateOpFactoryFunction_t Udo_CreateOpFactoryFunction_t;
 
 /**
  * @brief A function to release the resources allocated for an operation factory
@@ -150,8 +144,6 @@ SnpeUdo_releaseOpFactory(SnpeUdo_OpFactory_t opFactory);
 
 typedef SnpeUdo_ErrorType_t
 (*SnpeUdo_ReleaseOpFactoryFunction_t)(SnpeUdo_OpFactory_t);
-
-typedef SnpeUdo_ReleaseOpFactoryFunction_t Udo_ReleaseOpFactoryFunction_t;
 
 /**
  * @brief A function to create an operation from the factory.
@@ -196,8 +188,6 @@ typedef SnpeUdo_ErrorType_t
                                      SnpeUdo_TensorParam_t*,
                                      SnpeUdo_Operation_t*);
 
-typedef SnpeUdo_CreateOperationFunction_t Udo_CreateOperationFunction_t;
-
 /**
  * @brief A pointer to notification function.
  *
@@ -215,8 +205,6 @@ typedef SnpeUdo_CreateOperationFunction_t Udo_CreateOperationFunction_t;
  */
 typedef SnpeUdo_ErrorType_t
 (*SnpeUdo_ExternalNotify_t)(const uint32_t ID);
-
-typedef SnpeUdo_ExternalNotify_t Udo_ExternalNotify_t;
 
 /**
  * @brief Operation execution function.
@@ -257,8 +245,6 @@ typedef SnpeUdo_ErrorType_t
                                const uint32_t,
                                SnpeUdo_ExternalNotify_t);
 
-typedef SnpeUdo_ExecuteOpFunction_t Udo_ExecuteOpFunction_t;
-
 /**
  * @brief A function to setting the inputs & outputs. part of SnpeUdo_Operation struct,
  *        returned from creation of a new operation instance.
@@ -291,8 +277,6 @@ typedef SnpeUdo_ErrorType_t
                              SnpeUdo_TensorParam_t*,
                              SnpeUdo_TensorParam_t*);
 
-typedef SnpeUdo_SetOpIOFunction_t Udo_SetOpIOFunction_t;
-
 /**
  * @brief A function to return execution times.
  *
@@ -313,8 +297,6 @@ SnpeUdo_profileOp(SnpeUdo_Operation_t operation, uint32_t *executionTime);
 typedef SnpeUdo_ErrorType_t
 (*SnpeUdo_ProfileOpFunction_t)(SnpeUdo_Operation_t, uint32_t*);
 
-typedef SnpeUdo_ProfileOpFunction_t Udo_ProfileOpFunction_t;
-
 /**
  * @brief A function to release the operation instance
  *        \n When it is called, the implementation library needs to release all resources
@@ -331,8 +313,6 @@ SnpeUdo_releaseOp(SnpeUdo_Operation_t operation);
 
 typedef SnpeUdo_ErrorType_t
 (*SnpeUdo_ReleaseOpFunction_t)(SnpeUdo_Operation_t);
-
-typedef SnpeUdo_ReleaseOpFunction_t Udo_ReleaseOpFunction_t;
 
 /** @} */ /* end_addtogroup c_plus_plus_apis C++ */
 
