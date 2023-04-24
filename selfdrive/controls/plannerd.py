@@ -8,6 +8,7 @@ from selfdrive.modeld.constants import T_IDXS
 from selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 from selfdrive.controls.lib.lateral_planner import LateralPlanner
 import cereal.messaging as messaging
+from system.hardware import TICI
 
 def cumtrapz(x, t):
   return np.concatenate([[0], np.cumsum(((x[0:-1] + x[1:])/2) * np.diff(t))])
@@ -27,7 +28,7 @@ def publish_ui_plan(sm, pm, lateral_planner, longitudinal_planner):
   pm.send('uiPlan', ui_send)
 
 def plannerd_thread(sm=None, pm=None):
-  config_realtime_process(5, Priority.CTRL_LOW)
+  config_realtime_process(5 if TICI else 2, Priority.CTRL_LOW)
 
   cloudlog.info("plannerd is waiting for CarParams")
   params = Params()
