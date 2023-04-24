@@ -12,7 +12,11 @@
 #include <QTransform>
 
 #include "cereal/messaging/messaging.h"
+#ifndef QCOM
 #include "common/modeldata.h"
+#else
+#include "common/legacy_modeldata.h"
+#endif
 #include "common/params.h"
 #include "common/timing.h"
 
