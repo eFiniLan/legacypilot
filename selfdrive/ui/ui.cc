@@ -116,7 +116,7 @@ void update_model(UIState *s,
   max_idx = get_path_length_idx(plan_position, max_distance);
   update_line_data(s, plan_position, 0.9, 1.22, &scene.track_vertices, max_idx, false);
 }
-
+#ifndef QCOM
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
   UIScene &scene = s->scene;
   const auto driver_orient = is_rhd ? driverstate.getRightDriverData().getFaceOrientation() : driverstate.getLeftDriverData().getFaceOrientation();
@@ -149,7 +149,7 @@ void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &drivers
     scene.face_kpts_draw[kpi] = (vec3){{(float)kpt_this.v[0], (float)kpt_this.v[1], (float)(kpt_this.v[2] * (1.0-dm_fade_state) + 8 * dm_fade_state)}};
   }
 }
-
+#endif
 static void update_sockets(UIState *s) {
   s->sm->update(0);
 }
