@@ -104,6 +104,34 @@ if arch == "larch64":
   cflags = ["-DQCOM2", "-mcpu=cortex-a57"]
   cxxflags = ["-DQCOM2", "-mcpu=cortex-a57"]
   rpath += ["/usr/local/lib"]
+
+elif arch == "aarch64":
+  lenv["LD_LIBRARY_PATH"] += ['/data/data/com.termux/files/usr/lib']
+
+  # android
+  lenv["ANDROID_DATA"] = os.environ['ANDROID_DATA']
+  lenv["ANDROID_ROOT"] = os.environ['ANDROID_ROOT']
+
+  cpppath = [
+    "#third_party/opencl/include",
+  ]
+
+  libpath = [
+    "/usr/local/lib",
+    "/usr/lib",
+    "/system/vendor/lib64",
+    f"#third_party/acados/{arch}/lib",
+  ]
+
+  rpath = []
+  libpath += [
+    "#third_party/snpe/aarch64",
+    "#third_party/libyuv/lib",
+    "/system/vendor/lib64"
+  ]
+  cflags = ["-DQCOM", "-D_USING_LIBCXX", "-mcpu=cortex-a57"]
+  cxxflags = ["-DQCOM", "-D_USING_LIBCXX", "-mcpu=cortex-a57"]
+
 else:
   cflags = []
   cxxflags = []
@@ -196,9 +224,15 @@ env = Environment(
     "#third_party/acados/include/blasfeo/include",
     "#third_party/acados/include/hpipm/include",
     "#third_party/catch2/include",
+    "#third_party/bzip2",
     "#third_party/libyuv/include",
+    "#third_party/openmax/include",
     "#third_party/json11",
     "#third_party/curl/include",
+    "#third_party/libgralloc/include",
+    "#third_party/android_frameworks_native/include",
+    "#third_party/android_hardware_libhardware/include",
+    "#third_party/android_system_core/include",
     "#third_party/linux/include",
     "#third_party/snpe/include",
     "#third_party/mapbox-gl-native-qt/include",
@@ -280,7 +314,9 @@ Export('envCython')
 
 # Qt build environment
 qt_env = env.Clone()
-qt_modules = ["Widgets", "Gui", "Core", "Network", "Concurrent", "Multimedia", "Quick", "Qml", "QuickWidgets", "Location", "Positioning", "DBus", "Xml"]
+qt_modules = ["Widgets", "Gui", "Core", "Network", "Concurrent", "Multimedia", "Quick", "Qml", "QuickWidgets", "Location", "Positioning"]
+if arch != "aarch64":
+  qt_modules += ["DBus", "Xml"]
 
 qt_libs = []
 if arch == "Darwin":
@@ -295,6 +331,15 @@ if arch == "Darwin":
   qt_env["LINKFLAGS"] += ["-F" + os.path.join(qt_env['QTDIR'], "lib")]
   qt_env["FRAMEWORKS"] += [f"Qt{m}" for m in qt_modules] + ["OpenGL"]
   qt_env.AppendENVPath('PATH', os.path.join(qt_env['QTDIR'], "bin"))
+elif arch == "aarch64":
+  qt_env['QTDIR'] = "/usr"
+  qt_dirs = [
+    f"/usr/include/qt",
+  ]
+  qt_dirs += [f"/usr/include/qt/Qt{m}" for m in qt_modules]
+
+  qt_libs = [f"Qt5{m}" for m in qt_modules]
+  qt_libs += ['EGL', 'GLESv3', 'c++_shared']
 else:
   qt_install_prefix = subprocess.check_output(['qmake', '-query', 'QT_INSTALL_PREFIX'], encoding='utf8').strip()
   qt_install_headers = subprocess.check_output(['qmake', '-query', 'QT_INSTALL_HEADERS'], encoding='utf8').strip()
@@ -310,6 +355,8 @@ else:
   if arch == "larch64":
     qt_libs += ["GLESv2", "wayland-client"]
     qt_env.PrependENVPath('PATH', Dir("#third_party/qt5/larch64/bin/").abspath)
+  elif arch == "aarch64":
+    qt_libs = ['gui', 'adreno_utils']
   elif arch != "Darwin":
     qt_libs += ["GL"]
 
@@ -349,13 +396,19 @@ if GetOption("clazy"):
 Export('env', 'qt_env', 'arch', 'real_arch', 'SHARED')
 
 SConscript(['common/SConscript'])
-Import('_common', '_gpucommon')
+
+if arch == "aarch64":
+  Import('_common', '_gpucommon', '_gpu_libs')
+else:
+  Import('_common', '_gpucommon')
 
 if SHARED:
   common, gpucommon = abspath(common), abspath(gpucommon)
 else:
   common = [_common, 'json11']
   gpucommon = [_gpucommon]
+  if arch == "aarch64":
+    gpucommon += _gpu_libs
 
 Export('common', 'gpucommon')
 
@@ -387,7 +440,7 @@ rednose_config = {
   },
 }
 
-if arch != "larch64":
+if arch not in ["aarch64", "larch64"]:
   rednose_config['to_build'].update({
     'loc_4': ('#selfdrive/locationd/models/loc_kf.py', True, [], rednose_deps),
     'lane': ('#selfdrive/locationd/models/lane_kf.py', True, [], rednose_deps),
@@ -401,10 +454,10 @@ SConscript(['rednose/SConscript'])
 
 # Build system services
 SConscript([
-  'system/camerad/SConscript',
+  'selfdrive/camerad/SConscript',
   'system/clocksd/SConscript',
   'system/proclogd/SConscript',
-  'system/ubloxd/SConscript',
+#   'system/ubloxd/SConscript',
 ])
 if arch != "Darwin":
   SConscript(['system/logcatd/SConscript'])
@@ -413,7 +466,7 @@ if arch != "Darwin":
 
 # build submodules
 SConscript([
-  'body/board/SConscript',
+#   'body/board/SConscript',
   'cereal/SConscript',
   'opendbc/can/SConscript',
   'panda/SConscript',
@@ -436,7 +489,7 @@ SConscript(['selfdrive/loggerd/SConscript'])
 SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['system/sensord/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
-SConscript(['selfdrive/navd/SConscript'])
+# SConscript(['selfdrive/navd/SConscript'])
 
 if arch in ['x86_64', 'Darwin'] or GetOption('extras'):
   SConscript(['tools/replay/SConscript'])

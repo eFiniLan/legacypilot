@@ -11,6 +11,9 @@ if arch == 'larch64':
 
 maps = arch in ['larch64', 'x86_64']
 
+if arch == 'aarch64':
+  base_libs += ['log', 'utils', 'gui', 'ui', 'CB', 'gsl', 'adreno_utils', 'cutils', 'uuid']
+
 if maps and arch == 'x86_64':
   rpath = [Dir(f"#third_party/mapbox-gl-native-qt/{arch}").srcnode().abspath]
   qt_env["RPATH"] += rpath
