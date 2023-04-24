@@ -12,17 +12,17 @@ import psutil
 
 import cereal.messaging as messaging
 from cereal import log
-from common.dict_helpers import strip_deprecated_keys
+# from common.dict_helpers import strip_deprecated_keys
 from common.filter_simple import FirstOrderFilter
 from common.params import Params
 from common.realtime import DT_TRML, sec_since_boot
 from selfdrive.controls.lib.alertmanager import set_offroad_alert
 from system.hardware import HARDWARE, TICI, AGNOS
 from system.loggerd.config import get_available_percent
-from selfdrive.statsd import statlog
+# from selfdrive.statsd import statlog
 from system.swaglog import cloudlog
 from selfdrive.thermald.power_monitoring import PowerMonitoring
-from selfdrive.thermald.fan_controller import TiciFanController
+from selfdrive.thermald.fan_controller import TiciFanController, EonFanController, UnoFanController
 from system.version import terms_version, training_version
 
 ThermalStatus = log.DeviceState.ThermalStatus
@@ -46,7 +46,7 @@ THERMAL_BANDS = OrderedDict({
 })
 
 # Override to highest thermal band when offroad and above this temp
-OFFROAD_DANGER_TEMP = 79.5
+OFFROAD_DANGER_TEMP = 79.5 if TICI else 70.0
 
 prev_offroad_states: Dict[str, Tuple[bool, Optional[str]]] = {}
 
@@ -210,8 +210,14 @@ def thermald_thread(end_event, hw_queue):
 
       # Setup fan handler on first connect to panda
       if fan_controller is None and peripheralState.pandaType != log.PandaState.PandaType.unknown:
+        is_uno = peripheralState.pandaType == log.PandaState.PandaType.uno
+
         if TICI:
           fan_controller = TiciFanController()
+        elif is_uno:
+          fan_controller = UnoFanController()
+        else:
+          fan_controller = EonFanController()
 
     elif (sec_since_boot() - sm.rcv_time['pandaStates']) > DISCONNECT_TIMEOUT:
       if onroad_conditions["ignition"]:
@@ -239,6 +245,8 @@ def thermald_thread(end_event, hw_queue):
     msg.deviceState.modemTempC = last_hw_state.modem_temps
 
     msg.deviceState.screenBrightnessPercent = HARDWARE.get_screen_brightness()
+    msg.deviceState.usbOnline = HARDWARE.get_usb_present()
+    # current_filter.update(msg.deviceState.batteryCurrent / 1e6)
 
     # this one is only used for offroad
     temp_sources = [
@@ -347,22 +355,30 @@ def thermald_thread(end_event, hw_queue):
         off_ts = sec_since_boot()
 
     # Offroad power monitoring
-    voltage = None if peripheralState.pandaType == log.PandaState.PandaType.unknown else peripheralState.voltage
+    voltage = None if peripheralState is None or peripheralState.pandaType == log.PandaState.PandaType.unknown else peripheralState.voltage
     power_monitor.calculate(voltage, onroad_conditions["ignition"])
-    msg.deviceState.offroadPowerUsageUwh = power_monitor.get_power_used()
+    msg.deviceState.offroadPowerUsageUwh = max(0, power_monitor.get_power_used())
     msg.deviceState.carBatteryCapacityUwh = max(0, power_monitor.get_car_battery_capacity())
     current_power_draw = HARDWARE.get_current_power_draw()
-    statlog.sample("power_draw", current_power_draw)
+    # statlog.sample("power_draw", current_power_draw)
     msg.deviceState.powerDrawW = current_power_draw
 
     som_power_draw = HARDWARE.get_som_power_draw()
-    statlog.sample("som_power_draw", som_power_draw)
+    # statlog.sample("som_power_draw", som_power_draw)
     msg.deviceState.somPowerDrawW = som_power_draw
 
-    # Check if we need to shut down
-    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen):
-      cloudlog.warning(f"shutting device down, offroad since {off_ts}")
-      params.put_bool("DoShutdown", True)
+    if not TICI:
+      # Check if we need to disable charging (handled by boardd)
+      msg.deviceState.chargingDisabled = power_monitor.legacy_should_disable_charging(onroad_conditions["ignition"], in_car, off_ts)
+
+      # Check if we need to shut down
+      if power_monitor.legacy_should_shutdown(peripheralState, onroad_conditions["ignition"], in_car, off_ts, started_seen):
+        cloudlog.warning(f"shutting device down, offroad since {off_ts}")
+        params.put_bool("DoShutdown", True)
+    else:
+      if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen):
+        cloudlog.warning(f"shutting device down, offroad since {off_ts}")
+        params.put_bool("DoShutdown", True)
 
     msg.deviceState.started = started_ts is not None
     msg.deviceState.startedMonoTime = int(1e9*(started_ts or 0))
@@ -377,35 +393,35 @@ def thermald_thread(end_event, hw_queue):
     should_start_prev = should_start
 
     # Log to statsd
-    statlog.gauge("free_space_percent", msg.deviceState.freeSpacePercent)
-    statlog.gauge("gpu_usage_percent", msg.deviceState.gpuUsagePercent)
-    statlog.gauge("memory_usage_percent", msg.deviceState.memoryUsagePercent)
-    for i, usage in enumerate(msg.deviceState.cpuUsagePercent):
-      statlog.gauge(f"cpu{i}_usage_percent", usage)
-    for i, temp in enumerate(msg.deviceState.cpuTempC):
-      statlog.gauge(f"cpu{i}_temperature", temp)
-    for i, temp in enumerate(msg.deviceState.gpuTempC):
-      statlog.gauge(f"gpu{i}_temperature", temp)
-    statlog.gauge("memory_temperature", msg.deviceState.memoryTempC)
-    statlog.gauge("ambient_temperature", msg.deviceState.ambientTempC)
-    for i, temp in enumerate(msg.deviceState.pmicTempC):
-      statlog.gauge(f"pmic{i}_temperature", temp)
-    for i, temp in enumerate(last_hw_state.nvme_temps):
-      statlog.gauge(f"nvme_temperature{i}", temp)
-    for i, temp in enumerate(last_hw_state.modem_temps):
-      statlog.gauge(f"modem_temperature{i}", temp)
-    statlog.gauge("fan_speed_percent_desired", msg.deviceState.fanSpeedPercentDesired)
-    statlog.gauge("screen_brightness_percent", msg.deviceState.screenBrightnessPercent)
+    # statlog.gauge("free_space_percent", msg.deviceState.freeSpacePercent)
+    # statlog.gauge("gpu_usage_percent", msg.deviceState.gpuUsagePercent)
+    # statlog.gauge("memory_usage_percent", msg.deviceState.memoryUsagePercent)
+    # for i, usage in enumerate(msg.deviceState.cpuUsagePercent):
+    #   statlog.gauge(f"cpu{i}_usage_percent", usage)
+    # for i, temp in enumerate(msg.deviceState.cpuTempC):
+    #   statlog.gauge(f"cpu{i}_temperature", temp)
+    # for i, temp in enumerate(msg.deviceState.gpuTempC):
+    #   statlog.gauge(f"gpu{i}_temperature", temp)
+    # statlog.gauge("memory_temperature", msg.deviceState.memoryTempC)
+    # statlog.gauge("ambient_temperature", msg.deviceState.ambientTempC)
+    # for i, temp in enumerate(msg.deviceState.pmicTempC):
+    #   statlog.gauge(f"pmic{i}_temperature", temp)
+    # for i, temp in enumerate(last_hw_state.nvme_temps):
+    #   statlog.gauge(f"nvme_temperature{i}", temp)
+    # for i, temp in enumerate(last_hw_state.modem_temps):
+    #   statlog.gauge(f"modem_temperature{i}", temp)
+    # statlog.gauge("fan_speed_percent_desired", msg.deviceState.fanSpeeZercentDesired)
+    # statlog.gauge("screen_brightness_percent", msg.deviceState.screenBrightnessPercent)
 
     # report to server once every 10 minutes
-    if (count % int(600. / DT_TRML)) == 0:
-      cloudlog.event("STATUS_PACKET",
-                     count=count,
-                     pandaStates=[strip_deprecated_keys(p.to_dict()) for p in pandaStates],
-                     peripheralState=strip_deprecated_keys(peripheralState.to_dict()),
-                     location=(strip_deprecated_keys(sm["gpsLocationExternal"].to_dict()) if sm.alive["gpsLocationExternal"] else None),
-                     deviceState=strip_deprecated_keys(msg.to_dict()))
-
+    # if (count % int(600. / DT_TRML)) == 0:
+    #   cloudlog.event("STATUS_PACKET",
+    #                  count=count,
+    #                  pandaStates=[strip_deprecated_keys(p.to_dict()) for p in pandaStates],
+    #                  peripheralState=strip_deprecated_keys(peripheralState.to_dict()),
+    #                  location=(strip_deprecated_keys(sm["gpsLocationExternal"].to_dict()) if sm.alive["gpsLocationExternal"] else None),
+    #                  deviceState=strip_deprecated_keys(msg.to_dict()))
+    #
     count += 1
 
 
