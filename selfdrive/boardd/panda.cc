@@ -14,12 +14,20 @@ Panda::Panda(std::string serial, uint32_t bus_offset) : bus_offset(bus_offset) {
   try {
     handle = std::make_unique<PandaUsbHandle>(serial);
   } catch (std::exception &e) {
+#ifndef QCOM
 #ifndef __APPLE__
     handle = std::make_unique<PandaSpiHandle>(serial);
+#endif
 #endif
   }
 
   hw_type = get_hw_type();
+  #ifdef QCOM
+  if (hw_type == cereal::PandaState::PandaType::WHITE_PANDA || hw_type == cereal::PandaState::PandaType::GREY_PANDA) {
+    has_gps = hw_type == cereal::PandaState::PandaType::GREY_PANDA;
+    hw_type = cereal::PandaState::PandaType::BLACK_PANDA;
+  }
+  #endif
 
   has_rtc = (hw_type == cereal::PandaState::PandaType::UNO) ||
             (hw_type == cereal::PandaState::PandaType::DOS) ||
@@ -45,12 +53,14 @@ std::string Panda::hw_serial() {
 std::vector<std::string> Panda::list() {
   std::vector<std::string> serials = PandaUsbHandle::list();
 
+#ifndef QCOM
 #ifndef __APPLE__
   for (auto s : PandaSpiHandle::list()) {
     if (std::find(serials.begin(), serials.end(), s) == serials.end()) {
       serials.push_back(s);
     }
   }
+#endif
 #endif
 
   return serials;
@@ -301,3 +311,21 @@ uint8_t Panda::calculate_checksum(uint8_t *data, uint32_t len) {
   }
   return checksum;
 }
+
+#ifdef QCOM
+void Panda::set_usb_power_mode(cereal::PeripheralState::UsbPowerMode power_mode) {
+  handle->control_write(0xe6, (uint16_t)power_mode, 0);
+}
+
+int Panda::control_write(uint8_t request, uint16_t param1, uint16_t param2) {
+  return handle->control_write(request, param1, param2);
+}
+
+int Panda::control_read(uint8_t request, uint16_t param1, uint16_t param2, unsigned char *data, uint16_t length) {
+  return handle->control_read(request, param1, param2, data, length);
+}
+
+int Panda::bulk_write(unsigned char endpoint, unsigned char* data, int length) {
+  return handle->bulk_write(endpoint, data, length);
+}
+#endif

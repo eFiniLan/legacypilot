@@ -82,6 +82,14 @@ public:
   void can_send(capnp::List<cereal::CanData>::Reader can_data_list);
   bool can_receive(std::vector<can_frame>& out_vec);
   void can_reset_communications();
+  #ifdef QCOM
+  void set_usb_power_mode(cereal::PeripheralState::UsbPowerMode power_mode);
+  void set_pigeon_baud(int baud);
+  bool has_gps = true;
+  int control_write(uint8_t request, uint16_t param1, uint16_t param2);
+  int control_read(uint8_t request, uint16_t param1, uint16_t param2, unsigned char *data, uint16_t length);
+  int bulk_write(unsigned char endpoint, unsigned char* data, int length);
+  #endif
 
 protected:
   // for unit tests

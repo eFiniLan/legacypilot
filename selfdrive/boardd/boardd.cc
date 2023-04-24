@@ -28,6 +28,11 @@
 #include "common/util.h"
 #include "system/hardware/hw.h"
 
+// for panda gps
+#ifdef QCOM
+#include <libusb-1.0/libusb.h>
+#include "selfdrive/boardd/pigeon.h"
+#endif
 // -- Multi-panda conventions --
 // Ordering:
 // - The internal panda will always be the first panda
@@ -49,13 +54,20 @@
 
 #define MAX_IR_POWER 0.5f
 #define MIN_IR_POWER 0.0f
+#ifdef QCOM
+#define CUTOFF_IL 200
+#define SATURATE_IL 1600
+#else
 #define CUTOFF_IL 400
 #define SATURATE_IL 1000
+#endif
 #define NIBBLE_TO_HEX(n) ((n) < 10 ? (n) + '0' : ((n) - 10) + 'a')
 using namespace std::chrono_literals;
 
 std::atomic<bool> ignition(false);
-
+#ifdef QCOM
+std::atomic<bool> pigeon_active(false);
+#endif
 ExitHandler do_exit;
 
 static std::string get_time_str(const struct tm &time) {
@@ -199,6 +211,13 @@ Panda *connect(std::string serial="", uint32_t index=0) {
   }
   //panda->enable_deepsleep();
 
+#ifdef QCOM
+  // power on charging, only the first time. Panda can also change mode and it causes a brief disconneciton
+#ifndef __x86_64__
+  static std::once_flag connected_once;
+  std::call_once(connected_once, &Panda::set_usb_power_mode, panda, cereal::PeripheralState::UsbPowerMode::CDP);
+#endif
+#endif
   sync_time(panda.get(), SyncTimeDir::FROM_PANDA);
   return panda.release();
 }
@@ -307,8 +326,10 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
   std::vector<health_t> pandaStates;
   pandaStates.reserve(pandas_cnt);
 
+  #ifndef QCOM
   std::vector<std::array<can_health_t, PANDA_CAN_CNT>> pandaCanStates;
   pandaCanStates.reserve(pandas_cnt);
+  #endif
 
   for (const auto& panda : pandas){
     auto health_opt = panda->get_state();
@@ -318,6 +339,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
 
     health_t health = *health_opt;
 
+    #ifndef QCOM
     std::array<can_health_t, PANDA_CAN_CNT> can_health{};
     for (uint32_t i = 0; i < PANDA_CAN_CNT; i++) {
       auto can_health_opt = panda->get_can_state(i);
@@ -327,6 +349,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
       can_health[i] = *can_health_opt;
     }
     pandaCanStates.push_back(can_health);
+    #endif
 
     if (spoofing_started) {
       health.ignition_line_pkt = 1;
@@ -348,6 +371,9 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
 
   #ifndef __x86_64__
     bool power_save_desired = !ignition_local;
+    #ifdef QCOM
+    power_save_desired = power_save_desired && !pigeon_active;
+    #endif
     if (health.power_save_enabled_pkt != power_save_desired) {
       panda->set_power_saving(power_save_desired);
     }
@@ -363,8 +389,10 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
     }
 
     auto ps = pss[i];
+    #ifndef QCOM
     ps.setVoltage(health.voltage_pkt);
     ps.setCurrent(health.current_pkt);
+    #endif
     ps.setUptime(health.uptime_pkt);
     ps.setSafetyTxBlocked(health.safety_tx_blocked_pkt);
     ps.setSafetyRxInvalid(health.safety_rx_invalid_pkt);
@@ -385,8 +413,11 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
     ps.setHarnessStatus(cereal::PandaState::HarnessStatus(health.car_harness_status_pkt));
     ps.setInterruptLoad(health.interrupt_load);
     ps.setFanPower(health.fan_power);
+    #ifndef QCOM
     ps.setFanStallCount(health.fan_stall_count);
+    #endif
     ps.setSafetyRxChecksInvalid((bool)(health.safety_rx_checks_invalid));
+    #ifndef QCOM
     ps.setSpiChecksumErrorCount(health.spi_checksum_error_count);
 
     std::array<cereal::PandaState::PandaCanState::Builder, PANDA_CAN_CNT> cs = {ps.initCanState0(), ps.initCanState1(), ps.initCanState2()};
@@ -415,6 +446,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
       cs[j].setBrsEnabled(can_health.brs_enabled);
       cs[j].setCanfdNonIso(can_health.canfd_non_iso);
     }
+    #endif
 
     // Convert faults bitset to capnp list
     std::bitset<sizeof(health.faults_pkt) * 8> fault_bits(health.faults_pkt);
@@ -422,7 +454,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
 
     size_t j = 0;
     for (size_t f = size_t(cereal::PandaState::FaultType::RELAY_MALFUNCTION);
-         f <= size_t(cereal::PandaState::FaultType::HEARTBEAT_LOOP_WATCHDOG); f++) {
+         f <= size_t(cereal::PandaState::FaultType::INTERRUPT_RATE_EXTI); f++) {
       if (fault_bits.test(f)) {
         faults.set(j, cereal::PandaState::FaultType(f));
         j++;
@@ -435,6 +467,14 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
 }
 
 void send_peripheral_state(PubMaster *pm, Panda *panda) {
+  #ifdef QCOM
+  auto pandaState_opt = panda->get_state();
+  if (!pandaState_opt) {
+    return;
+  }
+
+  health_t pandaState = *pandaState_opt;
+  #endif
   // build msg
   MessageBuilder msg;
   auto evt = msg.initEvent();
@@ -443,6 +483,10 @@ void send_peripheral_state(PubMaster *pm, Panda *panda) {
   auto ps = evt.initPeripheralState();
   ps.setPandaType(panda->hw_type);
 
+  #ifdef QCOM
+  ps.setVoltage(pandaState.voltage_pkt);
+  ps.setCurrent(pandaState.current_pkt);
+  #else
   double read_time = millis_since_boot();
   ps.setVoltage(Hardware::get_voltage());
   ps.setCurrent(Hardware::get_current());
@@ -450,8 +494,12 @@ void send_peripheral_state(PubMaster *pm, Panda *panda) {
   if (read_time > 50) {
     LOGW("reading hwmon took %lfms", read_time);
   }
+  #endif
 
   uint16_t fan_speed_rpm = panda->get_fan_speed();
+  #ifdef QCOM
+  ps.setUsbPowerMode(cereal::PeripheralState::UsbPowerMode(pandaState.usb_power_mode_pkt));
+  #endif
   ps.setFanSpeedRpm(fan_speed_rpm);
 
   pm->send("peripheralState", msg);
@@ -528,13 +576,34 @@ void peripheral_control_thread(Panda *panda, bool no_fan_control) {
   uint16_t ir_pwr = 0;
   uint16_t prev_ir_pwr = 999;
   unsigned int cnt = 0;
+  #ifdef QCOM
+  bool prev_charging_disabled = false;
+  #endif
 
   FirstOrderFilter integ_lines_filter(0, 30.0, 0.05);
 
   while (!do_exit && panda->connected()) {
     cnt++;
     sm.update(1000); // TODO: what happens if EINTR is sent while in sm.update?
+    #ifdef QCOM
+    if (!Hardware::PC() && sm.updated("deviceState")) {
+      // Charging mode
+      bool charging_disabled = sm["deviceState"].getDeviceState().getChargingDisabled();
+      if (charging_disabled != prev_charging_disabled) {
+        if (charging_disabled) {
+          panda->set_usb_power_mode(cereal::PeripheralState::UsbPowerMode::CLIENT);
+          LOGW("TURN OFF CHARGING!\n");
+        } else {
+          panda->set_usb_power_mode(cereal::PeripheralState::UsbPowerMode::CDP);
+          LOGW("TURN ON CHARGING!\n");
+        }
+        prev_charging_disabled = charging_disabled;
+      }
+    }
 
+    // Other pandas don't have fan/IR to control
+    if (panda->hw_type != cereal::PandaState::PandaType::UNO && panda->hw_type != cereal::PandaState::PandaType::DOS) continue;
+    #endif
     if (sm.updated("deviceState") && !no_fan_control) {
       // Fan speed
       uint16_t fan_speed = sm["deviceState"].getDeviceState().getFanSpeedPercentDesired();
@@ -577,7 +646,58 @@ void peripheral_control_thread(Panda *panda, bool no_fan_control) {
     }
   }
 }
+#ifdef QCOM
+static void pigeon_publish_raw(PubMaster &pm, const std::string &dat) {
+  // create message
+  MessageBuilder msg;
+  msg.initEvent().setUbloxRaw(capnp::Data::Reader((uint8_t*)dat.data(), dat.length()));
+  pm.send("ubloxRaw", msg);
+}
 
+void pigeon_thread(Panda *panda) {
+  if (!panda->has_gps) return;
+  util::set_thread_name("boardd_pigeon");
+
+  PubMaster pm({"ubloxRaw"});
+  bool ignition_last = false;
+
+  std::unique_ptr<Pigeon> pigeon(Hardware::TICI() ? Pigeon::connect("/dev/ttyHS0") : Pigeon::connect(panda));
+
+  while (!do_exit && panda->connected()) {
+    bool need_reset = false;
+    bool ignition_local = ignition;
+    std::string recv = pigeon->receive();
+
+    // Check based on null bytes
+    if (ignition_local && recv.length() > 0 && recv[0] == (char)0x00) {
+      need_reset = true;
+      LOGW("received invalid ublox message while onroad, resetting panda GPS");
+    }
+
+    if (recv.length() > 0) {
+      pigeon_publish_raw(pm, recv);
+    }
+
+    // init pigeon on rising ignition edge
+    // since it was turned off in low power mode
+    if((ignition_local && !ignition_last) || need_reset) {
+      pigeon_active = true;
+      pigeon->init();
+    } else if (!ignition_local && ignition_last) {
+      // power off on falling edge of ignition
+      LOGD("powering off pigeon\n");
+      pigeon->stop();
+      pigeon->set_power(false);
+      pigeon_active = false;
+    }
+
+    ignition_last = ignition_local;
+
+    // 10ms - 100 Hz
+    util::sleep_for(10);
+  }
+}
+#endif
 void boardd_main_thread(std::vector<std::string> serials) {
   PubMaster pm({"pandaStates", "peripheralState"});
   LOGW("attempting to connect");
@@ -616,6 +736,9 @@ void boardd_main_thread(std::vector<std::string> serials) {
 
     threads.emplace_back(panda_state_thread, &pm, pandas, getenv("STARTED") != nullptr);
     threads.emplace_back(peripheral_control_thread, peripheral_panda, getenv("NO_FAN_CONTROL") != nullptr);
+    #ifdef QCOM
+    threads.emplace_back(pigeon_thread, peripheral_panda);
+    #endif
 
     threads.emplace_back(can_send_thread, pandas, getenv("FAKESEND") != nullptr);
     threads.emplace_back(can_recv_thread, pandas);
