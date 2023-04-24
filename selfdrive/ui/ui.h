@@ -113,12 +113,16 @@ typedef struct UIScene {
   // lead
   QPointF lead_vertices[2];
 
+  #ifndef QCOM
   // DMoji state
   float driver_pose_vals[3];
   float driver_pose_diff[3];
   float driver_pose_sins[3];
   float driver_pose_coss[3];
   vec3 face_kpts_draw[std::size(default_face_kpts_3d)];
+  #else
+  float accel_sensor, gyro_sensor;
+  #endif
 
   float light_sensor;
   bool started, ignition, is_metric, map_on_left, longitudinal_control;
@@ -175,6 +179,9 @@ public:
   Device(QObject *parent = 0);
 
 private:
+  #ifdef QCOM
+  const float accel_samples = 5*UI_FREQ;
+  #endif
   bool awake = false;
   int interactive_timeout = 0;
   bool ignition_on = false;

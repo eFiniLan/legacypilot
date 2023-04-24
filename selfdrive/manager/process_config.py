@@ -45,7 +45,7 @@ procs = [
   NativeProcess("modeld", "selfdrive/legacy_modeld", ["./modeld"]),
   # NativeProcess("mapsd", "selfdrive/navd", ["./map_renderer"], enabled=False),
   # NativeProcess("navmodeld", "selfdrive/modeld", ["./navmodeld"], enabled=False),
-  NativeProcess("sensord", "system/sensord", ["./sensord"], enabled=not PC),
+  NativeProcess("sensord", "system/sensord", ["./sensord"], enabled=not PC, offroad=True),
   NativeProcess("ui", "selfdrive/ui", ["./ui"], offroad=True, watchdog_max_dt=(5 if not PC else None)),
   NativeProcess("soundd", "selfdrive/ui/soundd", ["./soundd"], offroad=True),
   NativeProcess("locationd", "selfdrive/locationd", ["./locationd"]),
