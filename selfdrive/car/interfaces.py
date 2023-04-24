@@ -32,14 +32,14 @@ TORQUE_SUBSTITUTE_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/substi
 
 def get_torque_params(candidate):
   with open(TORQUE_SUBSTITUTE_PATH) as f:
-    sub = yaml.load(f, Loader=yaml.CSafeLoader)
+    sub = yaml.load(f, Loader=yaml.Loader)
   if candidate in sub:
     candidate = sub[candidate]
 
   with open(TORQUE_PARAMS_PATH) as f:
-    params = yaml.load(f, Loader=yaml.CSafeLoader)
+    params = yaml.load(f, Loader=yaml.Loader)
   with open(TORQUE_OVERRIDE_PATH) as f:
-    override = yaml.load(f, Loader=yaml.CSafeLoader)
+    override = yaml.load(f, Loader=yaml.Loader)
 
   # Ensure no overlap
   if sum([candidate in x for x in [sub, params, override]]) > 1:
