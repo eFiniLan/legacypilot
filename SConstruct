@@ -431,7 +431,7 @@ SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib/SConscript'])
 
 SConscript(['selfdrive/boardd/SConscript'])
 
-SConscript(['system/loggerd/SConscript'])
+SConscript(['selfdrive/loggerd/SConscript'])
 
 SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['system/sensord/SConscript'])
