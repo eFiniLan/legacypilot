@@ -2,14 +2,18 @@
 
 #include <QApplication>
 #include <QFile>
+#ifndef QCOM
 #include <QHash>
+#endif
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLayoutItem>
 #include <QStyleOption>
 #include <QPainterPath>
+#ifndef QCOM
 #include <QTextStream>
 #include <QtXml/QDomDocument>
+#endif
 
 #include "common/params.h"
 #include "common/swaglog.h"
@@ -222,6 +226,7 @@ QColor interpColor(float xv, std::vector<float> xp, std::vector<QColor> fp) {
   }
 }
 
+#ifndef QCOM
 static QHash<QString, QByteArray> load_bootstrap_icons() {
   QHash<QString, QByteArray> icons;
 
@@ -255,3 +260,4 @@ QPixmap bootstrapPixmap(const QString &id) {
   }
   return pixmap;
 }
+#endif
