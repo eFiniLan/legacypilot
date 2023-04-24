@@ -52,6 +52,7 @@ public:
   void handle_msg_bytes(const char *data, const size_t size);
   void handle_msg(const cereal::Event::Reader& log);
   void handle_sensor(double current_time, const cereal::SensorEventData::Reader& log);
+  void handle_sensors(double current_time, const capnp::List<cereal::SensorEventData, capnp::Kind::STRUCT>::Reader& log);
   void handle_gps(double current_time, const cereal::GpsLocationData::Reader& log, const double sensor_time_offset);
   void handle_gnss(double current_time, const cereal::GnssMeasurements::Reader& log);
   void handle_car_state(double current_time, const cereal::CarState::Reader& log);

@@ -279,6 +279,50 @@ void Localizer::handle_sensor(double current_time, const cereal::SensorEventData
   }
 }
 
+void Localizer::handle_sensors(double current_time, const capnp::List<cereal::SensorEventData, capnp::Kind::STRUCT>::Reader& log) {
+  // TODO does not yet account for double sensor readings in the log
+  for (int i = 0; i < log.size(); i++) {
+    const cereal::SensorEventData::Reader& sensor_reading = log[i];
+
+    // Ignore empty readings (e.g. in case the magnetometer had no data ready)
+    if (sensor_reading.getTimestamp() == 0) {
+      continue;
+    }
+
+    double sensor_time = 1e-9 * sensor_reading.getTimestamp();
+
+    // sensor time and log time should be close
+    if (std::abs(current_time - sensor_time) > 0.1) {
+      LOGE("Sensor reading ignored, sensor timestamp more than 100ms off from log time");
+      return;
+    }
+
+    // Gyro Uncalibrated
+    if (sensor_reading.getSensor() == SENSOR_GYRO_UNCALIBRATED && sensor_reading.getType() == SENSOR_TYPE_GYROSCOPE_UNCALIBRATED) {
+      auto v = sensor_reading.getGyroUncalibrated().getV();
+      auto meas = Vector3d(-v[2], -v[1], -v[0]);
+      if (meas.norm() < ROTATION_SANITY_CHECK) {
+        this->kf->predict_and_observe(sensor_time, OBSERVATION_PHONE_GYRO, { meas });
+      }
+    }
+
+    // Accelerometer
+    if (sensor_reading.getSensor() == SENSOR_ACCELEROMETER && sensor_reading.getType() == SENSOR_TYPE_ACCELEROMETER) {
+      auto v = sensor_reading.getAcceleration().getV();
+
+      // TODO: reduce false positives and re-enable this check
+      // check if device fell, estimate 10 for g
+      // 40m/s**2 is a good filter for falling detection, no false positives in 20k minutes of driving
+      //this->device_fell |= (floatlist2vector(v) - Vector3d(10.0, 0.0, 0.0)).norm() > 40.0;
+
+      auto meas = Vector3d(-v[2], -v[1], -v[0]);
+      if (meas.norm() < ACCEL_SANITY_CHECK) {
+        this->kf->predict_and_observe(sensor_time, OBSERVATION_PHONE_ACCEL, { meas });
+      }
+    }
+  }
+}
+
 void Localizer::input_fake_gps_observations(double current_time) {
   // This is done to make sure that the error estimate of the position does not blow up
   // when the filter is in no-gps mode
@@ -583,13 +627,18 @@ void Localizer::handle_msg_bytes(const char *data, const size_t size) {
 
 void Localizer::handle_msg(const cereal::Event::Reader& log) {
   double t = log.getLogMonoTime() * 1e-9;
+  #ifdef QCOM
   this->time_check(t);
+  if (log.isSensorEvents()) {
+    this->handle_sensors(t, log.getSensorEvents());
+  #else
   if (log.isAccelerometer()) {
     this->handle_sensor(t, log.getAccelerometer());
   } else if (log.isGyroscope()) {
     this->handle_sensor(t, log.getGyroscope());
   } else if (log.isGpsLocation()) {
     this->handle_gps(t, log.getGpsLocation(), GPS_QUECTEL_SENSOR_TIME_OFFSET);
+  #endif
   } else if (log.isGpsLocationExternal()) {
     this->handle_gps(t, log.getGpsLocationExternal(), GPS_UBLOX_SENSOR_TIME_OFFSET);
   //} else if (log.isGnssMeasurements()) {
@@ -666,7 +715,11 @@ int Localizer::locationd_thread() {
     this->gps_std_factor = 2.0;
   }
   const std::initializer_list<const char *> service_list = {gps_location_socket, "cameraOdometry", "liveCalibration",
+  #ifdef QCOM
+                                                          "carState", "carParams", /*"accelerometer", "gyroscope"*/ "sensorEvents"};
+  #else
                                                           "carState", "carParams", "accelerometer", "gyroscope"};
+  #endif
 
   // TODO: remove carParams once we're always sending at 100Hz
   SubMaster sm(service_list, {}, nullptr, {gps_location_socket, "carParams"});
@@ -674,7 +727,11 @@ int Localizer::locationd_thread() {
 
   uint64_t cnt = 0;
   bool filterInitialized = false;
+  #ifdef QCOM
+  const std::vector<std::string> critical_input_services = {"cameraOdometry", "liveCalibration", /*"accelerometer", "gyroscope"*/ "sensorEvents"};
+  #else
   const std::vector<std::string> critical_input_services = {"cameraOdometry", "liveCalibration", "accelerometer", "gyroscope"};
+  #endif
   for (std::string service : critical_input_services) {
     this->observation_values_invalid.insert({service, 0.0});
   }
@@ -694,11 +751,19 @@ int Localizer::locationd_thread() {
     }
 
     // 100Hz publish for notcars, 20Hz for cars
+    #ifdef QCOM
+    const char* trigger_msg = sm["carParams"].getCarParams().getNotCar() ? "sensorEvents" : "cameraOdometry";
+    #else
     const char* trigger_msg = sm["carParams"].getCarParams().getNotCar() ? "accelerometer" : "cameraOdometry";
+    #endif
     if (sm.updated(trigger_msg)) {
       bool inputsOK = sm.allAliveAndValid() && this->are_inputs_ok();
       bool gpsOK = this->is_gps_ok();
+      #ifdef QCOM
+      bool sensorsOK = sm.allAliveAndValid({/*"accelerometer", "gyroscope"*/ "sensorEvents"});
+      #else
       bool sensorsOK = sm.allAliveAndValid({"accelerometer", "gyroscope"});
+      #endif
 
       MessageBuilder msg_builder;
       kj::ArrayPtr<capnp::byte> bytes = this->get_message_bytes(msg_builder, inputsOK, sensorsOK, gpsOK, filterInitialized);
