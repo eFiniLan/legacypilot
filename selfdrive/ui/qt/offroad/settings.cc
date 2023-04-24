@@ -6,7 +6,9 @@
 
 #include <QDebug>
 
+#ifndef QCOM
 #include "selfdrive/ui/qt/offroad/networking.h"
+#endif
 
 #ifdef ENABLE_MAPS
 #include "selfdrive/ui/qt/maps/map_settings.h"
@@ -313,6 +315,51 @@ void DevicePanel::poweroff() {
   }
 }
 
+C2NetworkPanel::C2NetworkPanel(QWidget *parent) : QWidget(parent) {
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  layout->setContentsMargins(50, 0, 50, 0);
+
+  ListWidget *list = new ListWidget();
+  list->setSpacing(30);
+  // wifi + tethering buttons
+
+  auto wifiBtn = new ButtonControl(tr("Wi-Fi Settings"), tr("OPEN"));
+  QObject::connect(wifiBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_wifi(); });
+  list->addItem(wifiBtn);
+
+  auto tetheringBtn = new ButtonControl(tr("Tethering Settings"), tr("OPEN"));
+  QObject::connect(tetheringBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_tethering(); });
+  list->addItem(tetheringBtn);
+
+  ipaddress = new LabelControl(tr("IP Address"), "");
+  list->addItem(ipaddress);
+
+  // SSH key management
+  list->addItem(new SshToggle());
+  list->addItem(new SshControl());
+  layout->addWidget(list);
+  layout->addStretch(1);
+}
+
+void C2NetworkPanel::showEvent(QShowEvent *event) {
+  ipaddress->setText(getIPAddress());
+}
+
+QString C2NetworkPanel::getIPAddress() {
+  std::string result = util::check_output("ifconfig wlan0");
+  if (result.empty()) return "";
+
+  const std::string inetaddrr = "inet addr:";
+  std::string::size_type begin = result.find(inetaddrr);
+  if (begin == std::string::npos) return "";
+
+  begin += inetaddrr.length();
+  std::string::size_type end = result.find(' ', begin);
+  if (end == std::string::npos) return "";
+
+  return result.substr(begin, end - begin).c_str();
+}
+
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
 }
@@ -368,7 +415,11 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
+    #ifdef QCOM
+    {tr("Network"), new C2NetworkPanel(this)},
+    #else
     {tr("Network"), new Networking(this)},
+    #endif
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
   };
@@ -436,4 +487,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       background-color: black;
     }
   )");
+}
+
+void SettingsWindow::hideEvent(QHideEvent *event) {
+  #ifdef QCOM
+  HardwareEon::close_activities();
+  #endif
 }

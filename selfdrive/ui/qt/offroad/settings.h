@@ -21,6 +21,7 @@ public:
 
 protected:
   void showEvent(QShowEvent *event) override;
+  void hideEvent(QHideEvent *event) override;
 
 signals:
   void closeSettings();
@@ -33,6 +34,18 @@ private:
   QWidget *sidebar_widget;
   QButtonGroup *nav_btns;
   QStackedWidget *panel_widget;
+};
+
+class C2NetworkPanel: public QWidget {
+  Q_OBJECT
+
+public:
+  explicit C2NetworkPanel(QWidget *parent = 0);
+
+private:
+  void showEvent(QShowEvent *event) override;
+  QString getIPAddress();
+  LabelControl *ipaddress;
 };
 
 class DevicePanel : public ListWidget {
