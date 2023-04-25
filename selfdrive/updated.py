@@ -16,13 +16,15 @@ from markdown_it import MarkdownIt
 
 from common.basedir import BASEDIR
 from common.params import Params
-from system.hardware import AGNOS, HARDWARE
+from system.hardware import AGNOS, HARDWARE, EON
 from system.swaglog import cloudlog
 from selfdrive.controls.lib.alertmanager import set_offroad_alert
 from system.version import is_tested_branch
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
+
+NEOSUPDATE_DIR = os.getenv("UPDATER_NEOSUPDATE_DIR", "/data/neoupdate")
 
 OVERLAY_UPPER = os.path.join(STAGING_ROOT, "upper")
 OVERLAY_METADATA = os.path.join(STAGING_ROOT, "metadata")
@@ -108,7 +110,10 @@ def setup_git_options(cwd: str) -> None:
 def dismount_overlay() -> None:
   if os.path.ismount(OVERLAY_MERGED):
     cloudlog.info("unmounting existing overlay")
-    run(["sudo", "umount", "-l", OVERLAY_MERGED])
+    args = ["umount", "-l", OVERLAY_MERGED]
+    if AGNOS:
+      args = ["sudo"] + args
+    run(args)
 
 
 def init_overlay() -> None:
@@ -129,7 +134,8 @@ def init_overlay() -> None:
   params.put_bool("UpdateAvailable", False)
   set_consistent_flag(False)
   dismount_overlay()
-  run(["sudo", "rm", "-rf", STAGING_ROOT])
+  if AGNOS:
+    run(["sudo", "rm", "-rf", STAGING_ROOT])
   if os.path.isdir(STAGING_ROOT):
     shutil.rmtree(STAGING_ROOT)
 
@@ -153,8 +159,11 @@ def init_overlay() -> None:
   overlay_opts = f"lowerdir={BASEDIR},upperdir={OVERLAY_UPPER},workdir={OVERLAY_METADATA}"
 
   mount_cmd = ["mount", "-t", "overlay", "-o", overlay_opts, "none", OVERLAY_MERGED]
-  run(["sudo"] + mount_cmd)
-  run(["sudo", "chmod", "755", os.path.join(OVERLAY_METADATA, "work")])
+  if AGNOS:
+    run(["sudo"] + mount_cmd)
+    run(["sudo", "chmod", "755", os.path.join(OVERLAY_METADATA, "work")])
+  else:
+    run(mount_cmd)
 
   git_diff = run(["git", "diff"], OVERLAY_MERGED)
   params.put("GitDiff", git_diff)
@@ -213,6 +222,23 @@ def handle_agnos_update() -> None:
   set_offroad_alert("Offroad_NeosUpdate", False)
 
 
+def handle_neos_update() -> None:
+  from system.hardware.eon.neos import download_neos_update
+
+  cur_neos = HARDWARE.get_os_version()
+  updated_neos = run(["bash", "-c", r"unset REQUIRED_NEOS_VERSION && source launch_env.sh && \
+                       echo -n $REQUIRED_NEOS_VERSION"], OVERLAY_MERGED).strip()
+
+  cloudlog.info(f"NEOS version check: {cur_neos} vs {updated_neos}")
+  if cur_neos == updated_neos:
+    return
+
+  cloudlog.info(f"Beginning background download for NEOS {updated_neos}")
+  set_offroad_alert("Offroad_NeosUpdate", True)
+
+  manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/eon/neos.json")
+  download_neos_update(manifest_path, cloudlog)
+  set_offroad_alert("Offroad_NeosUpdate", False)
 
 class Updater:
   def __init__(self):
@@ -380,8 +406,9 @@ class Updater:
     r = [run(cmd, OVERLAY_MERGED) for cmd in cmds]
     cloudlog.info("git reset success: %s", '\n'.join(r))
 
-    # TODO: show agnos download progress
-    if AGNOS:
+    if EON and not os.path.isfile("/ONEPLUS"):
+      handle_neos_update()
+    elif AGNOS:
       handle_agnos_update()
 
     # Create the finalized, ready-to-swap update
@@ -393,7 +420,12 @@ class Updater:
 def main() -> None:
   params = Params()
 
+  updater = Updater()
+  update_failed_count = 0  # TODO: Load from param?
+  exception = None
+
   if params.get_bool("DisableUpdates"):
+    updater.set_params(update_failed_count, exception)
     cloudlog.warning("updates are disabled by the DisableUpdates param")
     exit(0)
 
@@ -416,9 +448,6 @@ def main() -> None:
     t = datetime.datetime.utcnow().isoformat()
     params.put("InstallDate", t.encode('utf8'))
 
-  updater = Updater()
-  update_failed_count = 0  # TODO: Load from param?
-
   # no fetch on the first time
   wait_helper = WaitTimeHelper()
   wait_helper.only_check_for_update = True
@@ -431,7 +460,6 @@ def main() -> None:
     wait_helper.ready_event.clear()
 
     # Attempt an update
-    exception = None
     try:
       # TODO: reuse overlay from previous updated instance if it looks clean
       init_overlay()

@@ -152,7 +152,7 @@ function two_init {
   mount -o remount,r /system
 
   # Check for NEOS update
-  if [ -f /LEECO ] && [ $(< /VERSION) != "$NEOS_VERSION" ]; then
+  if [ -f /LEECO ] && [ $(< /VERSION) != "$REQUIRED_NEOS_VERSION" ]; then
     echo "Installing NEOS update"
     NEOS_PY="$DIR/system/hardware/eon/neos.py"
     MANIFEST="$DIR/system/hardware/eon/neos.json"
@@ -174,7 +174,7 @@ function two_init {
 
   # make sure we have the latest os version number.
   mount -o remount,rw /system
-  echo -n "$NEOS_VERSION" > /VERSION
+  echo -n "$REQUIRED_NEOS_VERSION" > /VERSION
   mount -o remount,r /system
 }
 
@@ -232,7 +232,7 @@ function launch {
           cd $BASEDIR
 
           echo "Restarting launch script ${LAUNCHER_LOCATION}"
-          unset NEOS_VERSION
+          unset REQUIRED_NEOS_VERSION
           unset AGNOS_VERSION
           exec "${LAUNCHER_LOCATION}"
         else
