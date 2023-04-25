@@ -485,6 +485,15 @@ void AnnotatedCameraWidget::updateFrameMat() {
   s->fb_w = w;
   s->fb_h = h;
 
+  #ifdef QCOM
+  auto intrinsic_matrix = fcam_intrinsic_matrix;
+  float zoom = ZOOM / intrinsic_matrix.v[0];
+  s->car_space_transform.reset();
+  s->car_space_transform.translate(w / 2, h / 2 + y_offset)
+      .scale(zoom, zoom)
+      .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
+  #else
+
   // Apply transformation such that video pixel coordinates match video
   // 1) Put (0, 0) in the middle of the video
   // 2) Apply same scaling as video
@@ -493,6 +502,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
   s->car_space_transform.translate(w / 2 - x_offset, h / 2 - y_offset)
       .scale(zoom, zoom)
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
+  #endif
 }
 
 void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
@@ -627,6 +637,7 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   painter.restore();
 }
 
+#ifndef QCOM
 void AnnotatedCameraWidget::paintGL() {
   UIState *s = uiState();
   SubMaster &sm = *(s->sm);
@@ -725,6 +736,61 @@ void AnnotatedCameraWidget::paintGL() {
   m.setDrawTimeMillis(cur_draw_t - start_draw_t);
   pm->send("uiDebug", msg);
 }
+#else
+void AnnotatedCameraWidget::paintGL() {
+  UIState *s = uiState();
+  SubMaster &sm = *(s->sm);
+  const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
+  const cereal::RadarState::Reader &radar_state = sm["radarState"].getRadarState();
+
+  QPainter painter(this);
+  painter.setRenderHint(QPainter::Antialiasing);
+  painter.setPen(Qt::NoPen);
+
+  CameraWidget::setStreamType(VISION_STREAM_ROAD);
+
+  s->scene.wide_cam = false;
+  if (s->scene.calibration_valid) {
+    CameraWidget::updateCalibration(s->scene.view_from_calib);
+  } else {
+    CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
+  }
+  CameraWidget::setFrameId(model.getFrameId());
+  CameraWidget::paintGL();
+
+  if (s->worldObjectsVisible()) {
+    if (sm.rcv_frame("modelV2") > s->scene.started_frame) {
+      update_model(s, sm["modelV2"].getModelV2(), sm["uiPlan"].getUiPlan());
+      if (sm.rcv_frame("radarState") > s->scene.started_frame) {
+        update_leads(s, radar_state, sm["modelV2"].getModelV2().getPosition());
+      }
+    }
+
+    drawLaneLines(painter, s);
+
+    if (s->scene.longitudinal_control) {
+      auto lead_one = radar_state.getLeadOne();
+      auto lead_two = radar_state.getLeadTwo();
+      if (lead_one.getStatus()) {
+        drawLead(painter, lead_one, s->scene.lead_vertices[0]);
+      }
+      if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
+        drawLead(painter, lead_two, s->scene.lead_vertices[1]);
+      }
+    }
+  }
+
+  drawHud(painter);
+
+  double cur_draw_t = millis_since_boot();
+  double dt = cur_draw_t - prev_draw_t;
+  double fps = fps_filter.update(1. / dt * 1000);
+  if (fps < 15) {
+    LOGW("slow frame rate: %.2f fps", fps);
+  }
+  prev_draw_t = cur_draw_t;
+}
+#endif
 
 void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
   CameraWidget::showEvent(event);
