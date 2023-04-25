@@ -1,6 +1,7 @@
 #include <sys/resource.h>
 
 #include <QApplication>
+#include <QSslConfiguration>
 #include <QTranslator>
 
 #include "system/hardware/hw.h"
@@ -13,6 +14,12 @@ int main(int argc, char *argv[]) {
 
   qInstallMessageHandler(swagLogMessageHandler);
   initApp(argc, argv);
+
+  if (Hardware::EON()) {
+    QSslConfiguration ssl = QSslConfiguration::defaultConfiguration();
+    ssl.setCaCertificates(QSslCertificate::fromPath("/usr/etc/tls/cert.pem"));
+    QSslConfiguration::setDefaultConfiguration(ssl);
+  }
 
   QTranslator translator;
   QString translation_file = QString::fromStdString(Params().get("LanguageSetting"));

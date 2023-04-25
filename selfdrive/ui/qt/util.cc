@@ -131,6 +131,9 @@ void initApp(int argc, char *argv[], bool disable_hidpi) {
   }
 
   setQtSurfaceFormat();
+  #ifdef QCOM
+  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  #endif
 }
 
 void swagLogMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {

@@ -27,8 +27,16 @@ const int footer_h = 280;
 const int UI_FREQ = 20; // Hz
 typedef cereal::CarControl::HUDControl::AudibleAlert AudibleAlert;
 
+#ifdef QCOM
+// TODO: this is also hardcoded in common/transformations/camera.py
+// TODO: choose based on frame input size
+const float y_offset = Hardware::EON() ? 0.0 : 150.0;
+const float ZOOM = Hardware::EON() ? 2138.5 : 2912.8;
+#endif
+
 const mat3 DEFAULT_CALIBRATION = {{ 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0 }};
 
+#ifndef QCOM
 const vec3 default_face_kpts_3d[] = {
   {-5.98, -51.20, 8.00}, {-17.64, -49.14, 8.00}, {-23.81, -46.40, 8.00}, {-29.98, -40.91, 8.00}, {-32.04, -37.49, 8.00},
   {-34.10, -32.00, 8.00}, {-36.16, -21.03, 8.00}, {-36.16, 6.40, 8.00}, {-35.47, 10.51, 8.00}, {-32.73, 19.43, 8.00},
@@ -38,6 +46,7 @@ const vec3 default_face_kpts_3d[] = {
   {36.53, -21.03, 8.00}, {34.47, -32.00, 8.00}, {32.42, -37.49, 8.00}, {30.36, -40.91, 8.00}, {24.19, -46.40, 8.00},
   {18.02, -49.14, 8.00}, {6.36, -51.20, 8.00}, {-5.98, -51.20, 8.00},
 };
+#endif
 
 struct Alert {
   QString text1;
