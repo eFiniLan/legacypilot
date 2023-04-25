@@ -2,7 +2,7 @@ import os
 
 from cereal import car
 from common.params import Params
-from system.hardware import PC, TICI
+from system.hardware import PC, TICI, EON
 from selfdrive.manager.process import PythonProcess, NativeProcess, DaemonProcess
 
 WEBCAM = os.getenv("USE_WEBCAM") is not None
@@ -18,6 +18,8 @@ def logging(started, params, CP: car.CarParams) -> bool:
   return started and run
 
 def ublox_available() -> bool:
+  if EON:
+    return True
   return os.path.exists('/dev/ttyHS0') and not os.path.exists('/persist/comma/use-quectel-gps')
 
 def ublox(started, params, CP: car.CarParams) -> bool:
