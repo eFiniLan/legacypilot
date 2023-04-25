@@ -59,7 +59,7 @@ AddOption('--pc-thneed',
 AddOption('--no-test',
           action='store_false',
           dest='test',
-          default=(arch != "aarch64" and os.path.islink(Dir('#laika/').abspath)),
+          default=(not os.path.isfile("/EON") and os.path.islink(Dir('#laika/').abspath)),
           help='skip building test files')
 
 real_arch = arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
