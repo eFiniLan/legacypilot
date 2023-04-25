@@ -3,7 +3,12 @@ import argparse
 import json
 import os
 
-from common.basedir import BASEDIR
+try:
+  from common.basedir import BASEDIR
+  local_gen = False
+except Exception:
+  BASEDIR = ""
+  local_gen = True
 
 UI_DIR = os.path.join(BASEDIR, "selfdrive", "ui")
 TRANSLATIONS_DIR = os.path.join(UI_DIR, "translations")
@@ -19,13 +24,16 @@ def update_translations(vanish=False, plural_only=None, translations_dir=TRANSLA
 
   for file in translation_files.values():
     tr_file = os.path.join(translations_dir, f"{file}.ts")
-    args = f"lupdate -locations none -recursive {UI_DIR} -ts {tr_file} -I {BASEDIR}"
+    args = f"lupdate -locations none -recursive {UI_DIR} -ts {tr_file}" + (f"-I {BASEDIR}" if BASEDIR != "" else "")
     if vanish:
       args += " -no-obsolete"
     if file in plural_only:
       args += " -pluralonly"
     ret = os.system(args)
     assert ret == 0
+    if local_gen:
+      ret = os.system(f"lrelease {tr_file}")
+      assert ret == 0
 
 
 if __name__ == "__main__":

@@ -91,6 +91,25 @@
     </message>
 </context>
 <context>
+    <name>C2NetworkPanel</name>
+    <message>
+        <source>Wi-Fi Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OPEN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tethering Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP Address</source>
+        <translation type="unfinished">Endereço IP</translation>
+    </message>
+</context>
+<context>
     <name>ConfirmationDialog</name>
     <message>
         <source>Ok</source>
@@ -1042,6 +1061,14 @@ Isso pode levar até um minuto.</translation>
     <message>
         <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
         <translation>Neste carro, o openpilot tem como padrão o ACC embutido do carro em vez do controle longitudinal do openpilot. Habilite isso para alternar para o controle longitudinal openpilot. Recomenda-se ativar o modo Experimental ao ativar o alfa de controle longitudinal openpilot.</translation>
+    </message>
+    <message>
+        <source>Enable Right-Hand Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allow openpilot to obey left-hand traffic conventions and perform driver monitoring on right driver seat.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
