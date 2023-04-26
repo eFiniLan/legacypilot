@@ -441,6 +441,12 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   configFont(p, "Inter", 66, "Regular");
   drawText(p, rect().center().x(), 290, speedUnit, 200);
 
+  // dm icon
+  if (!hideDM) {
+    drawIcon(p, radius / 2 + (bdr_s * 2), rect().bottom() - footer_h / 2,
+             dm_img, blackColor(70), dmActive ? 1.0 : 0.2);
+  }
+
   p.restore();
 }
 
