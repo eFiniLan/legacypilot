@@ -79,7 +79,7 @@ void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
   *pvd = left_points + right_points;
 }
 
-void update_model(UIState *s, 
+void update_model(UIState *s,
                   const cereal::ModelDataV2::Reader &model,
                   const cereal::UiPlan::Reader &plan) {
   UIScene &scene = s->scene;
@@ -166,21 +166,29 @@ static void update_state(UIState *s) {
     if (rpy_list.size() == 3) rpy << rpy_list[0], rpy_list[1], rpy_list[2];
     if (wfde_list.size() == 3) wfde << wfde_list[0], wfde_list[1], wfde_list[2];
     Eigen::Matrix3d device_from_calib = euler2rot(rpy);
+    #ifndef QCOM
     Eigen::Matrix3d wide_from_device = euler2rot(wfde);
+    #endif
     Eigen::Matrix3d view_from_device;
     view_from_device << 0,1,0,
                         0,0,1,
                         1,0,0;
     Eigen::Matrix3d view_from_calib = view_from_device * device_from_calib;
+    #ifndef QCOM
     Eigen::Matrix3d view_from_wide_calib = view_from_device * wide_from_device * device_from_calib ;
+    #endif
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         scene.view_from_calib.v[i*3 + j] = view_from_calib(i,j);
+        #ifndef QCOM
         scene.view_from_wide_calib.v[i*3 + j] = view_from_wide_calib(i,j);
+        #endif
       }
     }
     scene.calibration_valid = sm["liveCalibration"].getLiveCalibration().getCalStatus() == 1;
+    #ifndef QCOM
     scene.calibration_wide_valid = wfde_list.size() == 3;
+    #endif
   }
   if (sm.updated("pandaStates")) {
     auto pandaStates = sm["pandaStates"].getPandaStates();

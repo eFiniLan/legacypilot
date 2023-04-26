@@ -202,13 +202,9 @@ void CameraWidget::updateFrameMat() {
     if (active_stream_type == VISION_STREAM_DRIVER) {
       frame_mat = matmul(device_transform, get_driver_view_transform(w, h, stream_width, stream_height));
     } else {
-      intrinsic_matrix = active_stream_type == VISION_STREAM_WIDE_ROAD ? ecam_intrinsic_matrix : fcam_intrinsic_matrix;
-      zoom = ZOOM / intrinsic_matrix.v[0];
-      if (active_stream_type == VISION_STREAM_WIDE_ROAD) {
-        zoom *= 0.5;
-      }
-      float zx = zoom * 2 * intrinsic_matrix.v[2] / w;
-      float zy = zoom * 2 * intrinsic_matrix.v[5] / h;
+      zoom = ZOOM / fcam_intrinsic_matrix.v[0];
+      float zx = zoom * 2 * fcam_intrinsic_matrix.v[2] / w;
+      float zy = zoom * 2 * fcam_intrinsic_matrix.v[5] / h;
 
       const mat4 frame_transform = {{
         zx, 0.0, 0.0, 0.0,
