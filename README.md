@@ -11,6 +11,13 @@ legacypilot is a side project that enables comma.ai EON and Comma Two devices to
 
 legacypilot combines the Nuclear Grade Model with the latest openpilot (almost) codebase to create a hybrid solution. With the legacypilot project, we have stripped out nearly 99% of the dragonpilot code.
 
+In summary, legacypilot is based on Openpilot 0.8.16 with the latest vehicle model support from the Openpilot master branch.
+
+Please note that this build is and will always be in the experimental phase and may not be suitable for use as a daily driver.
+
+I recommend using the openpilot [commatwo_master](https://github.com/commaai/openpilot/tree/commatwo_master) branch for your daily driving needs.
+
+Please see [README_openpilot.md](README_openpilot.md) for the original readme.
 
 ## Why use legacypilot
 
@@ -22,8 +29,9 @@ I have decided to make this side project open source for users who wish to:
 * Experience pure openpilot (without the modifications of dragonpilot)
 * Make their own EON/C2 fork without spending hundreds of hours reverting and testing code.
 
-By making this project open source, I hope to alleviate some of the frustration and complaints about not being able to access the source code. However, I still encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for the best and up-to-date openpilot experience.
+By making this project open source, I hope to alleviate some of the frustration and complaints about not being able to access the dragonpilot source code.
 
+I still encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for the best and up-to-date openpilot experience.
 
 ## Limitations
 
@@ -33,9 +41,3 @@ By making this project open source, I hope to alleviate some of the frustration 
 * Navigation On Openpilot (NOO) is not supported, as it requires a newer driving model that is not currently available in legacypilot.
 * Services are not optimized for resource usage, and using all services may result in overheating issues.
 * Language files can only be generated in a PC due to missing Qt5 tools.
-
-In summary, legacypilot is based on Openpilot 0.8.16 with the latest vehicle model support from the Openpilot master branch.
-
-However, please note that this build is still in the experimental phase and may not be suitable for use as a daily driver. We recommend using the openpilot mastertwo branch for your daily driving needs.
-
-Please see README_openpilot.md for the original readme.
