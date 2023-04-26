@@ -180,7 +180,8 @@ void Localizer::build_live_location(cereal::LiveLocationKalman::Builder& fix) {
   fix.setPosenetOK(!(std_spike && this->car_speed > 5.0));
   fix.setDeviceStable(!this->device_fell);
   fix.setExcessiveResets(this->reset_tracker > MAX_RESET_TRACKER);
-  fix.setTimeToFirstFix(std::isnan(this->ttff) ? -1. : this->ttff);
+  // rick - disable it for now, compilation error, cereal looks fine, used in laikad
+//  fix.setTimeToFirstFix(std::isnan(this->ttff) ? -1. : this->ttff);
   this->device_fell = false;
 
   //fix.setGpsWeek(this->time.week);
