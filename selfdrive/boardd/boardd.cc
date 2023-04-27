@@ -617,7 +617,9 @@ void peripheral_control_thread(Panda *panda, bool no_fan_control) {
       auto event = sm["driverCameraState"];
       int cur_integ_lines = event.getDriverCameraState().getIntegLines();
 
+      #ifndef QCOM
       cur_integ_lines = integ_lines_filter.update(cur_integ_lines);
+      #endif
       last_front_frame_t = event.getLogMonoTime();
 
       if (cur_integ_lines <= CUTOFF_IL) {
