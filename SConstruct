@@ -485,6 +485,8 @@ SConscript(['selfdrive/legacy_modeld/SConscript'])
 
 SConscript(['selfdrive/controls/lib/lateral_mpc_lib/SConscript'])
 SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib/SConscript'])
+SConscript(['selfdrive/controls/lib/legacy_lateral_mpc_lib/SConscript'])
+SConscript(['selfdrive/controls/lib/legacy_longitudinal_mpc_lib/SConscript'])
 
 SConscript(['selfdrive/boardd/SConscript'])
 
