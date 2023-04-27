@@ -73,7 +73,11 @@ private:
     QRect(108, 804, 426, 164),
   };
 
+  #ifndef QCOM
   const QString img_path = "../assets/training/";
+  #else
+  const QString img_path = "../assets/training_legacy/";
+  #endif
   QVector<QRect> boundingRect;
   QElapsedTimer click_timer;
 
