@@ -13,7 +13,6 @@
 #include "common/params.h"
 #include "common/swaglog.h"
 #include "common/util.h"
-#include "system/hardware/hw.h"
 #include "selfdrive/legacy_modeld/models/driving.h"
 #include "selfdrive/legacy_modeld/models/nav.h"
 
@@ -58,7 +57,7 @@ mat3 update_calibration(Eigen::Vector3d device_from_calib_euler, bool wide_camer
 }
 
 static uint64_t get_ts(const VisionIpcBufExtra &extra) {
-  return Hardware::TICI() ? extra.timestamp_sof : extra.timestamp_eof;
+  return extra.timestamp_eof;
 }
 
 
@@ -175,13 +174,12 @@ void run_model(ModelState &model, VisionIpcClient &vipc_client_main, VisionIpcCl
 }
 
 int main(int argc, char **argv) {
-  if (!Hardware::PC()) {
-    int ret;
-    ret = util::set_realtime_priority(54);
-    assert(ret == 0);
-    util::set_core_affinity({Hardware::EON() ? 2 : 7});
-    assert(ret == 0);
-  }
+
+  int ret;
+  ret = util::set_realtime_priority(54);
+  assert(ret == 0);
+  util::set_core_affinity({2});
+  assert(ret == 0);
 
   bool main_wide_camera = false;
   bool use_extra_client = false;  // set for single camera mode
