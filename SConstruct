@@ -469,6 +469,9 @@ if arch != "Darwin":
 # Build openpilot
 
 # build submodules
+if arch != "aarch64":
+  SConscript(['body/board/SConscript'])
+
 SConscript([
 #   'body/board/SConscript',
   'cereal/SConscript',
