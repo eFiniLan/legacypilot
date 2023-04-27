@@ -8,14 +8,17 @@ from typing import Optional, List, Union
 from setproctitle import getproctitle  # pylint: disable=no-name-in-module
 
 from common.clock import sec_since_boot  # pylint: disable=no-name-in-module, import-error
-from system.hardware import PC
+from system.hardware import PC, TICI
 
 
 # time step for each process
 DT_CTRL = 0.01  # controlsd
 DT_MDL = 0.05  # model
 DT_TRML = 0.5  # thermald and manager
-DT_DMON = 0.05  # driver monitoring
+if TICI:
+  DT_DMON = 0.05
+else:
+  DT_DMON = 0.1
 
 
 class Priority:
