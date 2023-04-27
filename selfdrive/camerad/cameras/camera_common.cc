@@ -46,29 +46,19 @@ public:
     CL_CHECK(clSetKernelArg(krnl_, 0, sizeof(cl_mem), &cam_buf_cl));
     CL_CHECK(clSetKernelArg(krnl_, 1, sizeof(cl_mem), &buf_cl));
 
-    if (Hardware::TICI()) {
-      const int debayer_local_worksize = 16;
-      constexpr int localMemSize = (debayer_local_worksize + 2 * (3 / 2)) * (debayer_local_worksize + 2 * (3 / 2)) * sizeof(short int);
-      const size_t globalWorkSize[] = {size_t(width), size_t(height)};
-      const size_t localWorkSize[] = {debayer_local_worksize, debayer_local_worksize};
-      CL_CHECK(clSetKernelArg(krnl_, 2, localMemSize, 0));
-      CL_CHECK(clSetKernelArg(krnl_, 3, sizeof(float), &black_level));
-      CL_CHECK(clEnqueueNDRangeKernel(q, krnl_, 2, NULL, globalWorkSize, localWorkSize, 0, 0, debayer_event));
+    if (hdr_) {
+      // HDR requires a 1-D kernel due to the DPCM compression
+      const size_t debayer_local_worksize = 128;
+      const size_t debayer_work_size = height;  // doesn't divide evenly, is this okay?
+      CL_CHECK(clSetKernelArg(krnl_, 2, sizeof(float), &gain));
+      CL_CHECK(clEnqueueNDRangeKernel(q, krnl_, 1, NULL, &debayer_work_size, &debayer_local_worksize, 0, 0, debayer_event));
     } else {
-      if (hdr_) {
-        // HDR requires a 1-D kernel due to the DPCM compression
-        const size_t debayer_local_worksize = 128;
-        const size_t debayer_work_size = height;  // doesn't divide evenly, is this okay?
-        CL_CHECK(clSetKernelArg(krnl_, 2, sizeof(float), &gain));
-        CL_CHECK(clEnqueueNDRangeKernel(q, krnl_, 1, NULL, &debayer_work_size, &debayer_local_worksize, 0, 0, debayer_event));
-      } else {
-        const int debayer_local_worksize = 32;
-        assert(width % 2 == 0);
-        const size_t globalWorkSize[] = {size_t(height), size_t(width / 2)};
-        const size_t localWorkSize[] = {debayer_local_worksize, debayer_local_worksize};
-        CL_CHECK(clSetKernelArg(krnl_, 2, sizeof(float), &gain));
-        CL_CHECK(clEnqueueNDRangeKernel(q, krnl_, 2, NULL, globalWorkSize, localWorkSize, 0, 0, debayer_event));
-      }
+      const int debayer_local_worksize = 32;
+      assert(width % 2 == 0);
+      const size_t globalWorkSize[] = {size_t(height), size_t(width / 2)};
+      const size_t localWorkSize[] = {debayer_local_worksize, debayer_local_worksize};
+      CL_CHECK(clSetKernelArg(krnl_, 2, sizeof(float), &gain));
+      CL_CHECK(clEnqueueNDRangeKernel(q, krnl_, 2, NULL, globalWorkSize, localWorkSize, 0, 0, debayer_event));
     }
   }
 

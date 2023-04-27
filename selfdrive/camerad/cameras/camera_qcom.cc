@@ -1535,14 +1535,9 @@ static void driver_cam_auto_exposure(CameraState *c, SubMaster &sm) {
 
 
   ExpRect def_rect;
-  if (Hardware::TICI()) {
-    x_offset = 630, y_offset = 156;
-    frame_width = 668, frame_height = frame_width / 1.33;
-    def_rect = {96, 1832, 2, 242, 1148, 4};
-  } else {
-    def_rect = {is_rhd ? 0 : b->rgb_width * 3 / 5, is_rhd ? b->rgb_width * 2 / 5 : b->rgb_width, 2,
-                b->rgb_height / 3, b->rgb_height, 1};
-  }
+
+  def_rect = {is_rhd ? 0 : b->rgb_width * 3 / 5, is_rhd ? b->rgb_width * 2 / 5 : b->rgb_width, 2,
+              b->rgb_height / 3, b->rgb_height, 1};
 
   static ExpRect rect = def_rect;
   // use driver face crop for AE
@@ -1561,8 +1556,7 @@ static void driver_cam_auto_exposure(CameraState *c, SubMaster &sm) {
 }
 
 void process_driver_camera(MultiCameraState *s, CameraState *c, int cnt) {
-  int j = Hardware::TICI() ? 1 : 3;
-  if (cnt % j == 0) {
+  if (cnt % 3 == 0) {
     s->sm->update(0);
     driver_cam_auto_exposure(c, *(s->sm));
   }
