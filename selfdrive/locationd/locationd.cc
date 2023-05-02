@@ -632,17 +632,17 @@ void Localizer::handle_msg_bytes(const char *data, const size_t size) {
 
 void Localizer::handle_msg(const cereal::Event::Reader& log) {
   double t = log.getLogMonoTime() * 1e-9;
-  #ifdef QCOM
   this->time_check(t);
-  if (log.isSensorEvents()) {
-    this->handle_sensors(t, log.getSensorEvents());
-  #else
+  #ifndef QCOM
   if (log.isAccelerometer()) {
     this->handle_sensor(t, log.getAccelerometer());
   } else if (log.isGyroscope()) {
     this->handle_sensor(t, log.getGyroscope());
   } else if (log.isGpsLocation()) {
     this->handle_gps(t, log.getGpsLocation(), GPS_QUECTEL_SENSOR_TIME_OFFSET);
+  #else
+  if (log.isSensorEvents()) {
+    this->handle_sensors(t, log.getSensorEvents());
   #endif
   } else if (log.isGpsLocationExternal()) {
     this->handle_gps(t, log.getGpsLocationExternal(), GPS_UBLOX_SENSOR_TIME_OFFSET);
@@ -720,10 +720,10 @@ int Localizer::locationd_thread() {
     this->gps_std_factor = 2.0;
   }
   const std::initializer_list<const char *> service_list = {gps_location_socket, "cameraOdometry", "liveCalibration",
-  #ifdef QCOM
-                                                          "carState", "carParams", /*"accelerometer", "gyroscope"*/ "sensorEvents"};
-  #else
+  #ifndef QCOM
                                                           "carState", "carParams", "accelerometer", "gyroscope"};
+  #else
+                                                          "carState", "carParams", "sensorEvents"};
   #endif
 
   // TODO: remove carParams once we're always sending at 100Hz
@@ -733,9 +733,9 @@ int Localizer::locationd_thread() {
   uint64_t cnt = 0;
   bool filterInitialized = false;
   #ifdef QCOM
-  const std::vector<std::string> critical_input_services = {"cameraOdometry", "liveCalibration", /*"accelerometer", "gyroscope"*/ "sensorEvents"};
-  #else
   const std::vector<std::string> critical_input_services = {"cameraOdometry", "liveCalibration", "accelerometer", "gyroscope"};
+  #else
+  const std::vector<std::string> critical_input_services = {"cameraOdometry", "liveCalibration", /*"accelerometer", "gyroscope"*/ "sensorEvents"};
   #endif
   for (std::string service : critical_input_services) {
     this->observation_values_invalid.insert({service, 0.0});
@@ -756,18 +756,18 @@ int Localizer::locationd_thread() {
     }
 
     // 100Hz publish for notcars, 20Hz for cars
-    #ifdef QCOM
-    const char* trigger_msg = sm["carParams"].getCarParams().getNotCar() ? "sensorEvents" : "cameraOdometry";
-    #else
+    #ifndef QCOM
     const char* trigger_msg = sm["carParams"].getCarParams().getNotCar() ? "accelerometer" : "cameraOdometry";
+    #else
+    const char* trigger_msg = sm["carParams"].getCarParams().getNotCar() ? "sensorEvents" : "cameraOdometry";
     #endif
     if (sm.updated(trigger_msg)) {
       bool inputsOK = sm.allAliveAndValid() && this->are_inputs_ok();
       bool gpsOK = this->is_gps_ok();
-      #ifdef QCOM
-      bool sensorsOK = sm.allAliveAndValid({/*"accelerometer", "gyroscope"*/ "sensorEvents"});
-      #else
+      #ifndef QCOM
       bool sensorsOK = sm.allAliveAndValid({"accelerometer", "gyroscope"});
+      #else
+      bool sensorsOK = sm.allAliveAndValid({"sensorEvents"});
       #endif
 
       // Log time to first fix
