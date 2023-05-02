@@ -62,7 +62,11 @@ function two_init {
   # 192000000 307200000 384000000 441600000 537600000 614400000 691200000
   # 768000000 844800000 902400000 979200000 "1056000000" 1132800000
   # 1190400000 1286400000 1363200000 1440000000 1516800000 1593600000
-  echo 10560000 > /sys/class/devfreq/soc:qcom,m4m/max_freq
+  if [ -f /ONEPLUS ]; then
+    echo 13632000 > /sys/class/devfreq/soc:qcom,m4m/max_freq
+  else
+    echo 10560000 > /sys/class/devfreq/soc:qcom,m4m/max_freq
+  fi
   echo "performance" > /sys/class/devfreq/soc:qcom,m4m/governor
 
   # unclear if these help, but they don't seem to hurt
