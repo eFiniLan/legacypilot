@@ -232,13 +232,14 @@ static void update_state(UIState *s) {
   if (sm.updated("roadCameraState")) {
     auto camera_state = sm["roadCameraState"].getRoadCameraState();
 
-    float max_lines = Hardware::EON() ? 5408 : 1904;
-    float max_gain = Hardware::EON() ? 1.0: 10.0;
+    float max_lines = 5408;
+    float max_gain = 1.0;
     float max_ev = max_lines * max_gain;
 
     float ev = camera_state.getGain() * float(camera_state.getIntegLines());
 
-    scene.light_sensor = std::clamp<float>(1.0 - (ev / max_ev), 0.0, 1.0);
+    // Scale to 0% to 100%
+    scene.light_sensor = 100.0 * std::clamp<float>(1.0 - (ev / max_ev), 0.0, 1.0);
   }
   #endif
   scene.started = sm["deviceState"].getDeviceState().getStarted() && scene.ignition;
