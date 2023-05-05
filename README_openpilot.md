@@ -1,41 +1,3 @@
-
-
-
-What is legacypilot?
-------
-Legacypilot is part of the dragonpilot project.
-
-Since comma.ai deprecated support for the EON in version 0.7.9 and for Comma Two in version 0.8.13.1, the dragonpilot team has been working to enable these older devices to run on the latest openpilot version.
-
-However, since version 0.8.16, the comma.ai team has migrated the driving machine learning module to run on the tingrad framework, which is not easy to run on the old devices.
-
-dragonpilot on legacy devices combines the [Nuclear Grade Model](https://github.com/commaai/openpilot/tree/2f46fe5d856be0637cb55e460ea3f2d34be1703c/selfdrive/modeld/models) with the latest (almost) codebase to create a hybrid solution. With the legacypilot project, we have stripped out nearly 99% of the dragonpilot code.
-
-I have decided to open up this side project for users who wish to:
-
-* Port unsupported vehicles
-* Evaluate end-to-end lateral and longitudinal control on previously unsupported vehicles
-* Understand the limitations of legacy devices
-* Experience pure openpilot (without the poison of dragonpilot)
-
-We still encourage users to get a [comma 3](https://comma.ai/shop) for the best and up to date openpilot experience.
-
-
-LIMITATION
-------
-* CAN-FD VEHICLES WILL NOT WORK: This is because the library in EON/C2 is outdated and cannot build Red Panda firmware.
-* BODY WILL NOT WORK: This is also due to the library in EON/C2 being unable to build its firmware.
-* DRIVING AI MODEL REMAINS IN 0.8.16: Porting TinyGrad/PyOpenCL onto EON/C2 requires significant effort, and we are still investigating workarounds.
-* DRIVER MONITORING AI MODEL REMAINS IN 0.8.13.
-* NOO (Navigation On Openpilot) WILL NOT WORK: NOO requires a newer driving model to work with the nav model. Until we address this issue, it will not work.
-* SERVICES ARE NOT OPTIMIZED: New driving model uses more resources, having every service may result in overheating issues.
-
-**In summary, consider this as Openpilot 0.8.16 with the latest vehicle model support from the Openpilot master branch.**
-
-**The build is very rough, we recommend using the [openpilot mastertwo branch](https://github.com/commaai/openpilot/tree/commatwo_master) as daily driver.**
-
-
-
 ![](https://i.imgur.com/b0ZyIx5.jpg)
 
 Table of Contents
@@ -79,8 +41,8 @@ Running on a dedicated device in a car
 To use openpilot in a car, you need four things
 * A supported device to run this software: a [comma three](https://comma.ai/shop/products/three).
 * This software. The setup procedure of the comma three allows the user to enter a URL for custom software.
-The URL, openpilot.comma.ai will install the release version of openpilot. To install openpilot master, you can use installer.comma.ai/commaai/master, and replacing commaai with another GitHub username can install a fork.
-* One of [the 200+ supported cars](docs/CARS.md). We support Honda, Toyota, Hyundai, Nissan, Kia, Chrysler, Lexus, Acura, Audi, VW, and more. If your car is not supported but has adaptive cruise control and lane-keeping assist, it's likely able to run openpilot.
+  The URL, openpilot.comma.ai will install the release version of openpilot. To install openpilot master, you can use installer.comma.ai/commaai/master, and replacing commaai with another GitHub username can install a fork.
+* One of [the 250+ supported cars](docs/CARS.md). We support Honda, Toyota, Hyundai, Nissan, Kia, Chrysler, Lexus, Acura, Audi, VW, Ford and more. If your car is not supported but has adaptive cruise control and lane-keeping assist, it's likely able to run openpilot.
 * A [car harness](https://comma.ai/shop/products/car-harness) to connect to your car.
 
 We have detailed instructions for [how to mount the device in a car](https://comma.ai/setup).
