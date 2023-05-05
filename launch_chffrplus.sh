@@ -10,6 +10,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 function two_init {
   mount -o remount,rw /system
+  # openpilot ssh key installer
+  if [ ! -f /data/params/d/GithubSshKeys ]; then
+    echo -n openpilot > /data/params/d/GithubUsername
+    cat /system/comma/home/setup_keys > /data/params/d/GithubSshKeys
+    echo -n 1 > /data/params/d/SshEnabled
+    setprop persist.neos.ssh 1
+  fi
   if [ ! -f /ONEPLUS ] && ! $(grep -q "letv" /proc/cmdline); then
     sed -i -e 's#/dev/input/event1#/dev/input/event2#g' ~/.bash_profile
     touch /ONEPLUS
