@@ -15,7 +15,7 @@ from common.params import Params
 from selfdrive.hardware import TICI
 from selfdrive.loggerd.xattr_cache import getxattr, setxattr
 from selfdrive.loggerd.config import ROOT
-from selfdrive.swaglog import cloudlog
+from system.swaglog import cloudlog
 
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'
