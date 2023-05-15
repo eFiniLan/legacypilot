@@ -458,13 +458,19 @@ SConscript(['rednose/SConscript'])
 
 # Build system services
 SConscript([
-  'selfdrive/camerad/SConscript',
   'system/clocksd/SConscript',
   'system/proclogd/SConscript',
   'system/ubloxd/SConscript',
+#   'system/loggerd/SConscript',
+  'selfdrive/loggerd/SConscript',
 ])
 if arch != "Darwin":
-  SConscript(['system/logcatd/SConscript'])
+  SConscript([
+#     'system/camerad/SConscript',
+    'selfdrive/camerad/SConscript',
+    'system/sensord/SConscript',
+    'system/logcatd/SConscript',
+  ])
 
 # Build openpilot
 
@@ -484,21 +490,16 @@ SConscript(['third_party/SConscript'])
 SConscript(['common/kalman/SConscript'])
 SConscript(['common/transformations/SConscript'])
 
-SConscript(['selfdrive/legacy_modeld/SConscript'])
-
+SConscript(['selfdrive/boardd/SConscript'])
 SConscript(['selfdrive/controls/lib/lateral_mpc_lib/SConscript'])
 SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib/SConscript'])
+SConscript(['selfdrive/locationd/SConscript'])
+# SConscript(['selfdrive/navd/SConscript'])
+SConscript(['selfdrive/legacy_modeld/SConscript'])
+SConscript(['selfdrive/ui/SConscript'])
+
 SConscript(['selfdrive/controls/lib/legacy_lateral_mpc_lib/SConscript'])
 SConscript(['selfdrive/controls/lib/legacy_longitudinal_mpc_lib/SConscript'])
-
-SConscript(['selfdrive/boardd/SConscript'])
-
-SConscript(['selfdrive/loggerd/SConscript'])
-
-SConscript(['selfdrive/locationd/SConscript'])
-SConscript(['system/sensord/SConscript'])
-SConscript(['selfdrive/ui/SConscript'])
-# SConscript(['selfdrive/navd/SConscript'])
 
 if (arch in ['x86_64', 'Darwin'] and Dir('#tools/cabana/').exists()) or GetOption('extras'):
   SConscript(['tools/replay/SConscript'])
