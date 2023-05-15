@@ -78,6 +78,7 @@ class Controls:
     self.log_sock = messaging.sub_sock('androidLog')
 
     self.params = Params()
+    self.dp_no_gps_ctrl = self.params.get_bool("dp_no_gps_ctrl")
     self.sm = sm
     if self.sm is None:
       ignore = ['testJoystick']
@@ -407,7 +408,7 @@ class Controls:
 
     # TODO: fix simulator
     if not SIMULATION:
-      if not NOSENSOR:
+      if not NOSENSOR and not self.dp_no_gps_ctrl:
         if not self.sm['liveLocationKalman'].gpsOK and self.sm['liveLocationKalman'].inputsOK and (self.distance_traveled > 1000):
           # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
           self.events.add(EventName.noGps)
