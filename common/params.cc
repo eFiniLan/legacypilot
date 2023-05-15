@@ -204,6 +204,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Offroad_UpdateFailed", CLEAR_ON_MANAGER_START},
 
     {"dp_no_gps_ctrl", PERSISTENT},
+    {"dp_no_fan_ctrl", PERSISTENT},
 };
 
 } // namespace

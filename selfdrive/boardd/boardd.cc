@@ -584,6 +584,12 @@ void panda_state_thread(PubMaster *pm, std::vector<Panda *> pandas, bool spoofin
 
 void peripheral_control_thread(Panda *panda, bool no_fan_control) {
   util::set_thread_name("boardd_peripheral_control");
+  // rick - a device with black panda = EON / LEON / clone 1.5
+  if (panda->hw_type == cereal::PandaState::PandaType::BLACK_PANDA) {
+      Params().putBool("dp_no_fan_ctrl", true);
+      no_fan_control = true;
+      LOGW("dp_no_fan_ctrl = true\n");
+  }
 
   SubMaster sm({"deviceState", "driverCameraState"});
 
