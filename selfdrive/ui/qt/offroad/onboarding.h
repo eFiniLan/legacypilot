@@ -24,6 +24,7 @@ private:
   QImage image;
   int currentIndex = 0;
 
+  #ifndef QCOM
   // Bounding boxes for each training guide step
   const QRect continueBtn = {1840, 0, 320, 1080};
   QVector<QRect> boundingRect {
@@ -49,9 +50,32 @@ private:
     QRect(108, 804, 426, 164),
   };
 
-  #ifndef QCOM
   const QString img_path = "../assets/training/";
   #else
+  const QRect continueBtn = {1610, 0, 310, 1080};
+  QVector<QRect> boundingRect {
+    QRect(112, 804, 619, 166),
+    continueBtn,
+    continueBtn,
+    QRect(1476, 565, 253, 308),
+    QRect(1501, 529, 184, 108),
+    continueBtn,
+    QRect(1613, 665, 178, 153),
+    QRect(1220, 0, 420, 730),
+    QRect(1335, 499, 440, 147),
+    QRect(112, 820, 996, 148),
+    QRect(1412, 199, 316, 333),
+    continueBtn,
+    QRect(1237, 63, 683, 1017),
+    continueBtn,
+    QRect(1455, 110, 313, 860),
+    QRect(1253, 519, 383, 228),
+    continueBtn,
+    continueBtn,
+    QRect(630, 804, 626, 164),
+    QRect(108, 804, 426, 164),
+  };
+
   const QString img_path = "../assets/training_legacy/";
   #endif
   QElapsedTimer click_timer;
