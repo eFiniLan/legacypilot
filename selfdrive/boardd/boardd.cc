@@ -589,6 +589,10 @@ void peripheral_control_thread(Panda *panda, bool no_fan_control) {
       Params().putBool("dp_no_fan_ctrl", true);
       no_fan_control = true;
       LOGW("dp_no_fan_ctrl = true\n");
+  } else {
+      Params().putBool("dp_no_fan_ctrl", false);
+      no_fan_control = false;
+      LOGW("dp_no_fan_ctrl = false\n");
   }
 
   SubMaster sm({"deviceState", "driverCameraState"});
@@ -683,6 +687,9 @@ void pigeon_thread(Panda *panda) {
     Params().putBool("dp_no_gps_ctrl", true);
     LOGW("dp_no_gps_ctrl = true\n");
     return;
+  } else {
+    Params().putBool("dp_no_gps_ctrl", false);
+    LOGW("dp_no_gps_ctrl = false\n");
   }
   util::set_thread_name("boardd_pigeon");
 
