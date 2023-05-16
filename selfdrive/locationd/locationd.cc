@@ -295,7 +295,7 @@ void Localizer::handle_sensors(double current_time, const capnp::List<cereal::Se
 
     // sensor time and log time should be close
     if (std::abs(current_time - sensor_time) > 0.1) {
-      if (sensor_reading.getSensor() != SENSOR_TYPE_LIGHT) {
+      if (sensor_reading.getSensor() != SENSOR_LIGHT) {
         LOGE("Sensor ID %d reading ignored, sensor timestamp more than 100ms off from log time", sensor_reading.getSensor());
       }
       return;
