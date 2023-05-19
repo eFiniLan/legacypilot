@@ -34,4 +34,5 @@ public:
   static bool PC() { return false; }
   static bool TICI() { return false; }
   static bool AGNOS() { return false; }
+  static bool EON() { return false; }
 };
