@@ -185,7 +185,7 @@ static void update_state(UIState *s) {
         #endif
       }
     }
-    scene.calibration_valid = sm["liveCalibration"].getLiveCalibration().getCalStatus() == 1;
+    scene.calibration_valid = sm["liveCalibration"].getLiveCalibration().getCalStatus() == cereal::LiveCalibrationData::Status::CALIBRATED;
     #ifndef QCOM
     scene.calibration_wide_valid = wfde_list.size() == 3;
     #endif
@@ -276,13 +276,6 @@ void UIState::updateStatus() {
     started_prev = scene.started;
     emit offroadTransition(!scene.started);
   }
-
-  // Handle prime type change
-  if (prime_type != prime_type_prev) {
-    prime_type_prev = prime_type;
-    emit primeTypeChanged(prime_type);
-    Params().put("PrimeType", std::to_string(prime_type));
-  }
 }
 
 UIState::UIState(QObject *parent) : QObject(parent) {
@@ -313,6 +306,14 @@ void UIState::update() {
     watchdog_kick(nanos_since_boot());
   }
   emit uiUpdate(*this);
+}
+
+void UIState::setPrimeType(int type) {
+  if (type != prime_type) {
+    prime_type = type;
+    Params().put("PrimeType", std::to_string(prime_type));
+    emit primeTypeChanged(prime_type);
+  }
 }
 
 Device::Device(QObject *parent) : brightness_filter(BACKLIGHT_OFFROAD, BACKLIGHT_TS, BACKLIGHT_DT), QObject(parent) {

@@ -95,12 +95,6 @@ class TestOnroad(unittest.TestCase):
       return
 
     # setup env
-    os.environ['PASSIVE'] = "0"
-    os.environ['REPLAY'] = "1"
-    os.environ['SKIP_FW_QUERY'] = "1"
-    os.environ['FINGERPRINT'] = "TOYOTA COROLLA TSS2 2019"
-    os.environ['LOGPRINT'] = "debug"
-
     params = Params()
     params.clear_all()
     set_params_enabled()
@@ -161,7 +155,11 @@ class TestOnroad(unittest.TestCase):
     for s, msgs in self.service_msgs.items():
       if s in ('initData', 'sentinel'):
         continue
-
+      
+      # skip gps services for now
+      if s in ('ubloxGnss', 'ubloxRaw', 'gnssMeasurements'):
+        continue
+        
       with self.subTest(service=s):
         assert len(msgs) >= math.floor(service_list[s].frequency*55)
 

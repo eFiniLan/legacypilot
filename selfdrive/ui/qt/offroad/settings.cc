@@ -281,7 +281,7 @@ void DevicePanel::updateCalibDescription() {
       AlignedBuffer aligned_buf;
       capnp::FlatArrayMessageReader cmsg(aligned_buf.align(calib_bytes.data(), calib_bytes.size()));
       auto calib = cmsg.getRoot<cereal::Event>().getLiveCalibration();
-      if (calib.getCalStatus() != 0) {
+      if (calib.getCalStatus() != cereal::LiveCalibrationData::Status::UNCALIBRATED) {
         double pitch = calib.getRpyCalib()[1] * (180 / M_PI);
         double yaw = calib.getRpyCalib()[2] * (180 / M_PI);
         desc += tr(" Your device is pointed %1° %2 and %3° %4.")
@@ -396,7 +396,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     QPushButton {
       font-size: 140px;
       padding-bottom: 20px;
-      font-weight: bold;
       border 1px grey solid;
       border-radius: 100px;
       background-color: #292929;
@@ -436,22 +435,18 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(map_panel, &MapPanel::closeSettings, this, &SettingsWindow::closeSettings);
 #endif
 
-  const int padding = panels.size() > 3 ? 25 : 35;
-
   nav_btns = new QButtonGroup(this);
   for (auto &[name, panel] : panels) {
     QPushButton *btn = new QPushButton(name);
     btn->setCheckable(true);
     btn->setChecked(nav_btns->buttons().size() == 0);
-    btn->setStyleSheet(QString(R"(
+    btn->setStyleSheet(R"(
       QPushButton {
         color: grey;
         border: none;
         background: none;
         font-size: 65px;
         font-weight: 500;
-        padding-top: %1px;
-        padding-bottom: %1px;
       }
       QPushButton:checked {
         color: white;
@@ -459,8 +454,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       QPushButton:pressed {
         color: #ADADAD;
       }
-    )").arg(padding));
-
+    )");
+    btn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     nav_btns->addButton(btn);
     sidebar_layout->addWidget(btn, 0, Qt::AlignRight);
 
