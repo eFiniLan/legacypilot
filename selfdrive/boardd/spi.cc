@@ -35,7 +35,7 @@ struct __attribute__((packed)) spi_header {
   uint16_t max_rx_len;
 };
 
-const int SPI_ACK_TIMEOUT = 500; // milliseconds
+const unsigned int SPI_ACK_TIMEOUT = 500; // milliseconds
 const std::string SPI_DEVICE = "/dev/spidev0.0";
 
 class LockEx {
@@ -94,7 +94,7 @@ PandaSpiHandle::PandaSpiHandle(std::string serial) : PandaCommsHandle(serial) {
   }
 
   // get hw UID/serial
-  ret = control_read(0xc3, 0, 0, uid, uid_len, 1000);
+  ret = control_read(0xc3, 0, 0, uid, uid_len, 100);
   if (ret == uid_len) {
     std::stringstream stream;
     for (int i = 0; i < uid_len; i++) {
@@ -238,9 +238,10 @@ int PandaSpiHandle::spi_transfer_retry(uint8_t endpoint, uint8_t *tx_data, uint1
 
 int PandaSpiHandle::wait_for_ack(uint8_t ack, uint8_t tx, unsigned int timeout) {
   double start_millis = millis_since_boot();
-  if (timeout <= 0) {
+  if (timeout == 0) {
     timeout = SPI_ACK_TIMEOUT;
   }
+  timeout = std::clamp(timeout, 100U, SPI_ACK_TIMEOUT);
 
   spi_ioc_transfer transfer = {
     .tx_buf = (uint64_t)tx_buf,

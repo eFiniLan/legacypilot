@@ -7,7 +7,7 @@ from cereal import car
 from panda.python import uds
 from opendbc.can.can_define import CANDefine
 from selfdrive.car import dbc_dict
-from selfdrive.car.docs_definitions import CarFootnote, CarInfo, Column, Harness, HarnessKit, HarnessPart
+from selfdrive.car.docs_definitions import CarFootnote, CarInfo, CarPart, CarParts, Column
 from selfdrive.car.fw_query_definitions import FwQueryConfig, Request, p16
 
 Ecu = car.CarParams.Ecu
@@ -160,13 +160,13 @@ class Footnote(Enum):
   VW_MQB_A0 = CarFootnote(
     "Model-years 2022 and beyond may have a combined CAN gateway and BCM, which is supported by openpilot " +
     "in software, but doesn't yet have a harness available from the comma store.",
-    Column.HARNESS)
+    Column.HARDWARE)
 
 
 @dataclass
 class VWCarInfo(CarInfo):
   package: str = "Adaptive Cruise Control (ACC) & Lane Assist"
-  harness_kit: HarnessKit = HarnessKit(Harness.j533, parts=[HarnessPart.harness_box, HarnessPart.long_obdc_cable, HarnessPart.usbc_coupler])
+  car_parts: CarParts = CarParts([CarPart.j533, CarPart.harness_box, CarPart.long_obdc_cable, CarPart.usbc_coupler, CarPart.mount, CarPart.right_angle_obd_c_cable_1_5ft])
 
   def init_make(self, CP: car.CarParams):
     self.footnotes.insert(0, Footnote.VW_EXP_LONG)
@@ -195,11 +195,11 @@ CAR_INFO: Dict[str, Union[VWCarInfo, List[VWCarInfo]]] = {
   ],
   CAR.GOLF_MK7: [
     VWCarInfo("Volkswagen e-Golf 2014-20"),
-    VWCarInfo("Volkswagen Golf 2015-20"),
-    VWCarInfo("Volkswagen Golf Alltrack 2015-19"),
+    VWCarInfo("Volkswagen Golf 2015-20", auto_resume=False),
+    VWCarInfo("Volkswagen Golf Alltrack 2015-19", auto_resume=False),
     VWCarInfo("Volkswagen Golf GTD 2015-20"),
     VWCarInfo("Volkswagen Golf GTE 2015-20"),
-    VWCarInfo("Volkswagen Golf GTI 2015-21"),
+    VWCarInfo("Volkswagen Golf GTI 2015-21", auto_resume=False),
     VWCarInfo("Volkswagen Golf R 2015-19"),
     VWCarInfo("Volkswagen Golf SportsVan 2015-20"),
   ],

@@ -79,20 +79,25 @@ void MainWindow::closeSettings() {
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-  const static QSet<QEvent::Type> evts({QEvent::MouseButtonPress, QEvent::MouseMove,
-                                 QEvent::TouchBegin, QEvent::TouchUpdate, QEvent::TouchEnd});
-
-  if (evts.contains(event->type())) {
-    device.resetInteractiveTimout();
-    #ifdef QCOM
-    // filter out touches while in android activity
-    if (HardwareEon::launched_activity) {
-      HardwareEon::check_activity();
+  switch (event->type()) {
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseMove:
+      device.resetInteractiveTimout();
+      #ifdef QCOM
+      // filter out touches while in android activity
       if (HardwareEon::launched_activity) {
-        return true;
+        HardwareEon::check_activity();
+        if (HardwareEon::launched_activity) {
+          return true;
+        }
       }
-    }
-    #endif
+      #endif
+      break;
+    default:
+      break;
   }
   return false;
 }
