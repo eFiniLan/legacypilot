@@ -8,11 +8,7 @@
 #include <QWidget>
 
 #include "common/params.h"
-#ifndef QCOM
 #include "selfdrive/ui/qt/offroad/driverview.h"
-#else
-#include "selfdrive/ui/qt/offroad/driverview_qcom.h"
-#endif
 #include "selfdrive/ui/qt/body.h"
 #include "selfdrive/ui/qt/onroad.h"
 #include "selfdrive/ui/qt/sidebar.h"

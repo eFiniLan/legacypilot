@@ -5,7 +5,11 @@
 #include <QStackedLayout>
 
 #include "common/util.h"
+#ifdef QCOM
+#include "selfdrive/ui/qt/widgets/cameraview_qcom.h"
+#else
 #include "selfdrive/ui/qt/widgets/cameraview.h"
+#endif
 
 class DriverViewScene : public QWidget {
   Q_OBJECT
