@@ -4,7 +4,7 @@ from cereal import car
 from common.params import Params
 from common.realtime import Priority, config_realtime_process
 from system.swaglog import cloudlog
-from selfdrive.legacy_modeld.constants import T_IDXS
+from selfdrive.hybrid_modeld.constants import T_IDXS
 from selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 from selfdrive.controls.lib.lateral_planner import LateralPlanner
 # rick - old planners from 0.8.16

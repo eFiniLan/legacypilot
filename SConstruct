@@ -495,7 +495,7 @@ SConscript(['selfdrive/controls/lib/lateral_mpc_lib/SConscript'])
 SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib/SConscript'])
 SConscript(['selfdrive/locationd/SConscript'])
 # SConscript(['selfdrive/navd/SConscript'])
-SConscript(['selfdrive/legacy_modeld/SConscript'])
+SConscript(['selfdrive/hybrid_modeld/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
 
 SConscript(['selfdrive/controls/lib/legacy_lateral_mpc_lib/SConscript'])

@@ -87,9 +87,9 @@ poetry.toml
 # rick - these are generated during compilation.
 selfdrive/camerad/camerad
 selfdrive/golden/
-selfdrive/legacy_modeld/_dmonitoringmodeld
-selfdrive/legacy_modeld/_modeld
-selfdrive/legacy_modeld/models/supercombo.thneed
-selfdrive/legacy_modeld/models/supercombo_badweights.thneed
-selfdrive/legacy_modeld/thneed/compile
+selfdrive/hybrid_modeld/_dmonitoringmodeld
+selfdrive/hybrid_modeld/_modeld
+selfdrive/hybrid_modeld/models/supercombo.thneed
+selfdrive/hybrid_modeld/models/supercombo_badweights.thneed
+selfdrive/hybrid_modeld/thneed/compile
 selfdrive/loggerd/bootlog

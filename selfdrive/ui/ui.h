@@ -15,7 +15,7 @@
 #ifndef QCOM
 #include "common/modeldata.h"
 #else
-#include "common/legacy_modeldata.h"
+#include "common/hybrid_modeldata.h"
 #endif
 #include "common/params.h"
 #include "common/timing.h"

@@ -4,7 +4,7 @@ from cereal import car, log
 from common.conversions import Conversions as CV
 from common.numpy_fast import clip, interp
 from common.realtime import DT_MDL
-from selfdrive.legacy_modeld.constants import T_IDXS
+from selfdrive.hybrid_modeld.constants import T_IDXS
 
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
