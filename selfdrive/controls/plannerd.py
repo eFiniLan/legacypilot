@@ -8,8 +8,8 @@ from selfdrive.hybrid_modeld.constants import T_IDXS
 from selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 from selfdrive.controls.lib.lateral_planner import LateralPlanner
 # rick - old planners from 0.8.16
-# from selfdrive.controls.lib.legacy_longitudinal_planner import LongitudinalPlanner
-# from selfdrive.controls.lib.legacy_lateral_planner import LateralPlanner
+# from selfdrive.controls.lib.longitudinal_planner_0816 import LongitudinalPlanner
+# from selfdrive.controls.lib.lateral_planner_0816 import LateralPlanner
 import cereal.messaging as messaging
 from system.hardware import TICI
 
