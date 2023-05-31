@@ -89,6 +89,7 @@ selfdrive/camerad/camerad
 selfdrive/golden/
 selfdrive/hybrid_modeld/_dmonitoringmodeld
 selfdrive/hybrid_modeld/_modeld
+selfdrive/hybrid_modeld/_modeld_0813
 selfdrive/hybrid_modeld/models/supercombo.thneed
 selfdrive/hybrid_modeld/models/supercombo_badweights.thneed
 selfdrive/hybrid_modeld/models/supercombo_0813.thneed
