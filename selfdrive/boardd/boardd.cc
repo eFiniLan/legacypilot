@@ -597,15 +597,8 @@ void panda_state_thread(PubMaster *pm, std::vector<Panda *> pandas, bool spoofin
 void peripheral_control_thread(Panda *panda, bool no_fan_control) {
   util::set_thread_name("boardd_peripheral_control");
   // rick - a device with black panda = EON / LEON / clone 1.5
-  if (panda->hw_type == cereal::PandaState::PandaType::BLACK_PANDA) {
-      Params().putBool("dp_no_fan_ctrl", true);
-      no_fan_control = true;
-      LOGW("dp_no_fan_ctrl = true\n");
-  } else {
-      Params().putBool("dp_no_fan_ctrl", false);
-      no_fan_control = false;
-      LOGW("dp_no_fan_ctrl = false\n");
-  }
+  no_fan_control = panda->hw_type == cereal::PandaState::PandaType::BLACK_PANDA;
+  Params().putBool("dp_no_fan_ctrl", no_fan_control);
 
   SubMaster sm({"deviceState", "driverCameraState"});
 
@@ -695,14 +688,7 @@ static void pigeon_publish_raw(PubMaster &pm, const std::string &dat) {
 }
 
 void pigeon_thread(Panda *panda) {
-  if (!panda->has_gps) {
-    Params().putBool("dp_no_gps_ctrl", true);
-    LOGW("dp_no_gps_ctrl = true\n");
-    return;
-  } else {
-    Params().putBool("dp_no_gps_ctrl", false);
-    LOGW("dp_no_gps_ctrl = false\n");
-  }
+  Params().putBool("dp_no_gps_ctrl", !panda->has_gps);
   util::set_thread_name("boardd_pigeon");
 
   PubMaster pm({"ubloxRaw"});
