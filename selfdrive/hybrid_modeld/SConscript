@@ -74,15 +74,6 @@ common_model = lenv.Object(common_src)
 
 # build thneed model
 if use_thneed and arch in ("aarch64", "larch64"):
-  # rick - build 0813 model thneed
-  compiler = lenv.Program('thneed/compile', ["thneed/compile.cc"]+common_model, LIBS=libs)
-  cmd = f"cd {Dir('.').abspath} && {compiler[0].abspath} models/supercombo_0813.dlc models/supercombo_0813.thneed --binary"
-
-  lib_paths = ':'.join(Dir(p).abspath for p in lenv["LIBPATH"])
-  cenv = Environment(ENV={'LD_LIBRARY_PATH': f"{lib_paths}:{lenv['ENV']['LD_LIBRARY_PATH']}"})
-  cenv.Command("models/supercombo_0813.thneed", ["models/supercombo_0813.dlc", compiler], cmd)
-
-
   fn = File("models/supercombo").abspath
   compiler = lenv.Program('thneed/compile', ["thneed/compile.cc"]+common_model, LIBS=libs)
   cmd = f"cd {Dir('.').abspath} && {compiler[0].abspath} {fn}.dlc {fn}_badweights.thneed --binary"
@@ -107,15 +98,6 @@ lenv.Program('_dmonitoringmodeld', [
   ]+common_model, LIBS=libs)
 
 lenv.Program('_modeld', [
-    "modeld.cc",
-    "models/driving.cc",
-  ]+common_model, LIBS=libs + transformations)
-
-# rick - create 0813 modeld
-lenv['CFLAGS'].append("-DMODEL_0813")
-lenv['CXXFLAGS'].append("-DMODEL_0813")
-
-lenv.Program('_modeld_0813', [
     "modeld.cc",
     "models/driving.cc",
   ]+common_model, LIBS=libs + transformations)
