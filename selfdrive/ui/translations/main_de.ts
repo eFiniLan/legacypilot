@@ -540,10 +540,6 @@ location set</source>
         <source>CONNECT.COMMA.AI</source>
         <translation>CONNECT.COMMA.AI</translation>
     </message>
-    <message>
-        <source>COMMA POINTS</source>
-        <translation>COMMA PUNKTE</translation>
-    </message>
 </context>
 <context>
     <name>QObject</name>
