@@ -27,11 +27,19 @@ void model_init(ModelState* s, cl_device_id device_id, cl_context context) {
   s->wide_frame = new ModelFrame(device_id, context);
 
 #ifdef USE_THNEED
+  #ifndef MODEL_0813
   s->m = std::make_unique<ThneedModel>("models/supercombo.thneed",
+  #else
+  s->m = std::make_unique<ThneedModel>("models/supercombo_0813.thneed",
+  #endif
 #elif USE_ONNX_MODEL
   s->m = std::make_unique<ONNXModel>("models/supercombo.onnx",
 #else
-  s->m = std::make_unique<SNPEModel>("models/supercombo.dlc",
+  #ifndef MODEL_0813
+  s->m = std::make_unique<SNPEModel>("models/supercombo.dic",
+  #else
+  s->m = std::make_unique<SNPEModel>("models/supercombo_0813.dic",
+  #endif
 #endif
    &s->output[0], NET_OUTPUT_SIZE, USE_GPU_RUNTIME, true);
 
