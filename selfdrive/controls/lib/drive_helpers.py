@@ -6,6 +6,15 @@ from common.numpy_fast import clip, interp
 from common.realtime import DT_MDL
 from selfdrive.hybrid_modeld.constants import T_IDXS
 
+# rick - this is for 0813 lat controller
+LAT_MPC_N = 16
+
+# rick - this is for 0813 lat controller
+class MPC_COST_LAT:
+  PATH = 1.0
+  HEADING = 1.0
+  STEER_RATE = 1.0
+
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
