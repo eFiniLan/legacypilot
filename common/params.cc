@@ -205,6 +205,7 @@ std::unordered_map<std::string, uint32_t> keys = {
 
     {"dp_no_gps_ctrl", PERSISTENT},
     {"dp_no_fan_ctrl", PERSISTENT},
+    {"dp_logging", PERSISTENT},
 };
 
 } // namespace
