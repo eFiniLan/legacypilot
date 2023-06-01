@@ -11,7 +11,8 @@
   url = ../../commaai/laika.git
 [submodule "cereal"]
   path = cereal
-  url = ../../commaai/cereal.git
+  url = ../../dragonpilot-community/cereal.git
+  branch = legacy
 [submodule "rednose_repo"]
   path = rednose_repo
   url = ../../commaai/rednose.git
