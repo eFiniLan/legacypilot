@@ -498,8 +498,6 @@ SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['selfdrive/hybrid_modeld/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
 
-SConscript(['selfdrive/controls/lib/lateral_mpc_lib_0816/SConscript'])
-SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib_0816/SConscript'])
 
 if (arch in ['x86_64', 'Darwin'] and Dir('#tools/cabana/').exists()) or GetOption('extras'):
   SConscript(['tools/replay/SConscript'])
