@@ -7,7 +7,8 @@ from cereal import car
 from panda.python import uds
 from opendbc.can.can_define import CANDefine
 from selfdrive.car import dbc_dict
-from selfdrive.car.docs_definitions import CarFootnote, CarInfo, CarPart, CarParts, Column
+from selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarInfo, CarParts, Column, \
+                                           Device
 from selfdrive.car.fw_query_definitions import FwQueryConfig, Request, p16
 
 Ecu = car.CarParams.Ecu
@@ -153,7 +154,11 @@ class Footnote(Enum):
   PASSAT = CarFootnote(
     "Refers only to the MQB-based European B8 Passat, not the NMS Passat in the USA/China/Mideast markets.",
     Column.MODEL)
-  VW_EXP_LONG = CarFootnote (
+  SKODA_HEATED_WINDSHIELD = CarFootnote(
+    "Some Škoda vehicles are equipped with heated windshields, which are known " +
+    "to block GPS signal needed for some comma three functionality.",
+    Column.MODEL)
+  VW_EXP_LONG = CarFootnote(
     "Only available for vehicles using a gateway (J533) harness. At this time, vehicles using a camera harness " +
     "are limited to using stock ACC.",
     Column.LONGITUDINAL)
@@ -166,10 +171,15 @@ class Footnote(Enum):
 @dataclass
 class VWCarInfo(CarInfo):
   package: str = "Adaptive Cruise Control (ACC) & Lane Assist"
-  car_parts: CarParts = CarParts([CarPart.j533, CarPart.harness_box, CarPart.long_obdc_cable, CarPart.usbc_coupler, CarPart.mount, CarPart.right_angle_obd_c_cable_1_5ft])
+  car_parts: CarParts = CarParts.common([CarHarness.j533])
 
   def init_make(self, CP: car.CarParams):
-    self.footnotes.insert(0, Footnote.VW_EXP_LONG)
+    self.footnotes.append(Footnote.VW_EXP_LONG)
+    if "SKODA" in CP.carFingerprint:
+      self.footnotes.append(Footnote.SKODA_HEATED_WINDSHIELD)
+
+    if CP.carFingerprint in (CAR.CRAFTER_MK2, CAR.TRANSPORTER_T61):
+      self.car_parts = CarParts([Device.three_angled_mount, CarHarness.j533])
 
 
 CAR_INFO: Dict[str, Union[VWCarInfo, List[VWCarInfo]]] = {
