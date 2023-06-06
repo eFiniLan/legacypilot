@@ -91,25 +91,6 @@
     </message>
 </context>
 <context>
-    <name>C2NetworkPanel</name>
-    <message>
-        <source>Wi-Fi Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OPEN</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tethering Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IP Address</source>
-        <translation type="unfinished">IP 주소</translation>
-    </message>
-</context>
-<context>
     <name>ConfirmationDialog</name>
     <message>
         <source>Ok</source>
@@ -874,6 +855,26 @@ This may take up to a minute.</source>
         <source>Uninstall</source>
         <translation>제거</translation>
     </message>
+    <message>
+        <source>failed to check for update</source>
+        <translation>업데이트 확인 실패</translation>
+    </message>
+    <message>
+        <source>up to date, last checked %1</source>
+        <translation>최신 상태, 마지막으로 확인 %1</translation>
+    </message>
+    <message>
+        <source>DOWNLOAD</source>
+        <translation>다운로드</translation>
+    </message>
+    <message>
+        <source>update available</source>
+        <translation>업데이트 가능</translation>
+    </message>
+    <message>
+        <source>never</source>
+        <translation>업데이트 안함</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -1051,11 +1052,23 @@ This may take up to a minute.</source>
         <translation>이 차량은 openpilot 롱컨트롤 대신 차량의 내장 ACC로 기본 설정됩니다. openpilot 롱컨트롤으로 전환하려면 이 기능을 활성화하세요. openpilot 롱컨트롤 알파를 활성화하는경우 실험적 모드 활성화를 권장합니다.</translation>
     </message>
     <message>
-        <source>Enable Right-Hand Drive</source>
+        <source>Aggressive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Allow openpilot to obey left-hand traffic conventions and perform driver monitoring on right driver seat.</source>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relaxed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Driving Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

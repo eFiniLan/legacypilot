@@ -7,6 +7,7 @@ import sys
 import traceback
 from typing import List, Tuple, Union
 
+from cereal import log
 import cereal.messaging as messaging
 import selfdrive.sentry as sentry
 from common.basedir import BASEDIR
@@ -44,6 +45,7 @@ def manager_init() -> None:
     ("HasAcceptedTerms", "0"),
     ("LanguageSetting", "main_en"),
     ("OpenpilotEnabledToggle", "1"),
+    ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
     ("DisableUpdates", "1"),
     ("dp_no_gps_ctrl", "0"),
     ("dp_no_fan_ctrl", "0"),
@@ -138,7 +140,7 @@ def manager_thread() -> None:
   if os.getenv("NOBOARD") is not None:
     ignore.append("pandad")
 
-  if not params.get("dp_logging"):
+  if not params.get_bool("dp_logging"):
     ignore += ["logcatd", "proclogd", "loggerd"]
   ignore += [x for x in os.getenv("BLOCK", "").split(",") if len(x) > 0]
 

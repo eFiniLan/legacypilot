@@ -91,25 +91,6 @@
     </message>
 </context>
 <context>
-    <name>C2NetworkPanel</name>
-    <message>
-        <source>Wi-Fi Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OPEN</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tethering Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IP Address</source>
-        <translation type="unfinished">IP 地址</translation>
-    </message>
-</context>
-<context>
     <name>ConfirmationDialog</name>
     <message>
         <source>Ok</source>
@@ -873,6 +854,26 @@ This may take up to a minute.</source>
         <source>Uninstall</source>
         <translation>解除安裝</translation>
     </message>
+    <message>
+        <source>failed to check for update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>up to date, last checked %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DOWNLOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>update available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>never</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -1050,11 +1051,23 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable Right-Hand Drive</source>
+        <source>Aggressive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Allow openpilot to obey left-hand traffic conventions and perform driver monitoring on right driver seat.</source>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relaxed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Driving Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
