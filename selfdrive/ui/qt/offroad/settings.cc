@@ -29,7 +29,7 @@
 #include "selfdrive/ui/qt/widgets/input.h"
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
-  // param, title, desc, icon, confirm
+  // param, title, desc, icon
   std::vector<std::tuple<QString, QString, QString, QString>> toggle_defs{
     {
       "OpenpilotEnabledToggle",
@@ -99,8 +99,8 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
 
 
   std::vector<QString> longi_button_texts{tr("Aggressive"), tr("Standard"), tr("Relaxed")};
-  ButtonParamControl* long_personality_setting = new ButtonParamControl("LongitudinalPersonality", tr("Driving Personality"),
-                                          tr("Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake."),
+  long_personality_setting = new ButtonParamControl("LongitudinalPersonality", tr("Driving Personality"),
+                                          tr("Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars."),
                                           "../assets/offroad/icon_speed_limit.png",
                                           longi_button_texts);
   for (auto &[param, title, desc, icon] : toggle_defs) {
@@ -151,6 +151,7 @@ void TogglesPanel::updateToggles() {
                                   .arg(tr("New Driving Visualization"))
                                   .arg(tr("The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner."));
 
+  long_personality_setting->setEnabled(false);
   const bool is_release = params.getBool("IsReleaseBranch");
   auto cp_bytes = params.get("CarParamsPersistent");
   if (!cp_bytes.empty()) {
@@ -169,6 +170,7 @@ void TogglesPanel::updateToggles() {
       // normal description and toggle
       e2e_toggle->setEnabled(true);
       e2e_toggle->setDescription(e2e_description);
+      long_personality_setting->setEnabled(true);
     } else {
       // no long for now
       e2e_toggle->setEnabled(false);
