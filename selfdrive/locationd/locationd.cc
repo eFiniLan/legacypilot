@@ -729,7 +729,7 @@ int Localizer::locationd_thread() {
     source = LocalizerGnssSource::UBLOX;
     gps_location_socket = "gpsLocationExternal";
   } else {
-    source = LocalizerGnssSource::QCOM;
+    source = LocalizerGnssSource::QCOMGNSS;
     gps_location_socket = "gpsLocation";
   }
 

@@ -22,7 +22,7 @@
 #define POSENET_STD_HIST_HALF 20
 
 enum LocalizerGnssSource {
-  UBLOX, QCOM
+  UBLOX, QCOMGNSS
 };
 
 class Localizer {
