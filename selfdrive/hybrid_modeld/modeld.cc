@@ -70,7 +70,7 @@ void run_model(ModelState &model, VisionIpcClient &vipc_client_main, VisionIpcCl
   FirstOrderFilter frame_dropped_filter(0., 10., 1. / MODEL_FREQ);
 
   uint32_t frame_id = 0, last_vipc_frame_id = 0;
-  double last = 0;
+//  double last = 0;
   uint32_t run_count = 0;
 
   mat3 model_transform_main = {};
@@ -168,7 +168,7 @@ void run_model(ModelState &model, VisionIpcClient &vipc_client_main, VisionIpcCl
     }
 
     //printf("model process: %.2fms, from last %.2fms, vipc_frame_id %u, frame_id, %u, frame_drop %.3f\n", mt2 - mt1, mt1 - last, extra.frame_id, frame_id, frame_drop_ratio);
-    last = mt1;
+//    last = mt1;
     last_vipc_frame_id = meta_main.frame_id;
   }
 }
