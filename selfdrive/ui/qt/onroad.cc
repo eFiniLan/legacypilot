@@ -463,7 +463,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
   s->fb_h = h;
 
   #ifdef QCOM
-  auto intrinsic_matrix = fcam_intrinsic_matrix;
+  auto intrinsic_matrix = FCAM_INTRINSIC_MATRIX;
   float zoom = ZOOM / intrinsic_matrix.v[0];
   s->car_space_transform.reset();
   s->car_space_transform.translate(w / 2, h / 2 + y_offset)

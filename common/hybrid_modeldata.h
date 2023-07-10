@@ -30,7 +30,7 @@ namespace tici_dm_crop {
   const int width = 954;
 };
 
-const mat3 fcam_intrinsic_matrix =
+const mat3 FCAM_INTRINSIC_MATRIX =
     Hardware::EON() ? (mat3){{910., 0., 1164.0 / 2,
                               0., 910., 874.0 / 2,
                               0., 0., 1.}}
@@ -40,7 +40,7 @@ const mat3 fcam_intrinsic_matrix =
 
 // tici ecam focal probably wrong? magnification is not consistent across frame
 // Need to retrain model before this can be changed
-const mat3 ecam_intrinsic_matrix = (mat3){{567.0, 0.0, 1928.0 / 2,
+const mat3 ECAM_INTRINSIC_MATRIX = (mat3){{567.0, 0.0, 1928.0 / 2,
                                            0.0, 567.0, 1208.0 / 2,
                                            0.0, 0.0, 1.0}};
 
