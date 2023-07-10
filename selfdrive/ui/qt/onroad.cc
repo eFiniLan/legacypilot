@@ -418,8 +418,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   // dm icon
   if (!hideDM) {
-    drawIcon(p, radius / 2 + (bdr_s * 2), rect().bottom() - footer_h / 2,
-             dm_img, blackColor(70), dmActive ? 1.0 : 0.2);
+    int offset = UI_BORDER_SIZE + btn_size / 2;
+    int x = rightHandDM ? width() - offset : offset;
+    int y = height() - offset;
+    drawIcon(p, x, y, dm_img, blackColor(70), dmActive ? 1.0 : 0.2);
   }
 
   p.restore();
