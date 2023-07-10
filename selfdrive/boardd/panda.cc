@@ -163,6 +163,19 @@ std::optional<std::string> Panda::get_serial() {
   return err >= 0 ? std::make_optional(serial_buf) : std::nullopt;
 }
 
+bool Panda::up_to_date() {
+  if (auto fw_sig = get_firmware_version()) {
+    for (auto fn : { "panda.bin.signed", "panda_h7.bin.signed" }) {
+      auto content = util::read_file(std::string("../../panda/board/obj/") + fn);
+      if (content.size() >= fw_sig->size() &&
+          memcmp(content.data() + content.size() - fw_sig->size(), fw_sig->data(), fw_sig->size()) == 0) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 void Panda::set_power_saving(bool power_saving) {
   handle->control_write(0xe7, power_saving, 0);
 }

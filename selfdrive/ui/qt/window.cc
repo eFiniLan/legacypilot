@@ -79,12 +79,15 @@ void MainWindow::closeSettings() {
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+  bool ignore = false;
   switch (event->type()) {
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
     case QEvent::MouseButtonPress:
-    case QEvent::MouseMove:
+    case QEvent::MouseMove: {
+      // ignore events when device is awakened by resetInteractiveTimout
+      ignore = !uiState()->awake;
       device.resetInteractiveTimout();
       #ifdef QCOM
       // filter out touches while in android activity
@@ -96,8 +99,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
       }
       #endif
       break;
+    }
     default:
       break;
   }
-  return false;
+  return ignore;
 }
