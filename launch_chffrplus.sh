@@ -190,6 +190,11 @@ function two_init {
 }
 
 function agnos_init {
+  # wait longer for weston to come up
+  if [ -f "$BASEDIR/prebuilt" ]; then
+    sleep 3
+  fi
+
   # TODO: move this to agnos
   sudo rm -f /data/etc/NetworkManager/system-connections/*.nmmeta
 

@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QFileInfo>
 #ifndef QCOM
 #include <QHash>
 #endif
@@ -15,7 +16,6 @@
 #include <QtXml/QDomDocument>
 #endif
 
-#include "common/params.h"
 #include "common/swaglog.h"
 #include "system/hardware/hw.h"
 
@@ -53,13 +53,6 @@ QMap<QString, QString> getSupportedLanguages() {
     map[key] = obj[key].toString();
   }
   return map;
-}
-
-void configFont(QPainter &p, const QString &family, int size, const QString &style) {
-  QFont f(family);
-  f.setPixelSize(size);
-  f.setStyleName(style);
-  p.setFont(f);
 }
 
 void clearLayout(QLayout* layout) {
@@ -107,6 +100,7 @@ void setQtSurfaceFormat() {
   fmt.setRenderableType(QSurfaceFormat::OpenGLES);
 #endif
   fmt.setSamples(16);
+  fmt.setStencilBufferSize(1);
   QSurfaceFormat::setDefaultFormat(fmt);
 }
 
@@ -167,12 +161,6 @@ QPixmap loadPixmap(const QString &fileName, const QSize &size, Qt::AspectRatioMo
   } else {
     return QPixmap(fileName).scaled(size, aspectRatioMode, Qt::SmoothTransformation);
   }
-}
-
-QRect getTextRect(QPainter &p, int flags, const QString &text) {
-  QFontMetrics fm(p.font());
-  QRect init_rect = fm.boundingRect(text);
-  return fm.boundingRect(init_rect, flags, text);
 }
 
 void drawRoundedRect(QPainter &painter, const QRectF &rect, qreal xRadiusTop, qreal yRadiusTop, qreal xRadiusBottom, qreal yRadiusBottom){
@@ -265,3 +253,35 @@ QPixmap bootstrapPixmap(const QString &id) {
   return pixmap;
 }
 #endif
+
+bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
+  // Using the experimental longitudinal toggle, returns whether longitudinal control
+  // will be active without needing a restart of openpilot
+  return car_params.getExperimentalLongitudinalAvailable()
+             ? Params().getBool("ExperimentalLongitudinalEnabled")
+             : car_params.getOpenpilotLongitudinalControl();
+}
+
+// ParamWatcher
+
+ParamWatcher::ParamWatcher(QObject *parent) : QObject(parent) {
+  watcher = new QFileSystemWatcher(this);
+  QObject::connect(watcher, &QFileSystemWatcher::fileChanged, this, &ParamWatcher::fileChanged);
+}
+
+void ParamWatcher::fileChanged(const QString &path) {
+  auto param_name = QFileInfo(path).fileName();
+  auto param_value = QString::fromStdString(params.get(param_name.toStdString()));
+
+  auto it = params_hash.find(param_name);
+  bool content_changed = (it == params_hash.end()) || (it.value() != param_value);
+  params_hash[param_name] = param_value;
+  // emit signal when the content changes.
+  if (content_changed) {
+    emit paramChanged(param_name, param_value);
+  }
+}
+
+void ParamWatcher::addParam(const QString &param_name) {
+  watcher->addPath(QString::fromStdString(params.getParamPath(param_name.toStdString())));
+}
