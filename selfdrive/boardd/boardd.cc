@@ -61,6 +61,7 @@
 #define CUTOFF_IL 400
 #define SATURATE_IL 1000
 #endif
+#define NIBBLE_TO_HEX(n) ((n) < 10 ? (n) + '0' : ((n) - 10) + 'a')
 using namespace std::chrono_literals;
 
 std::atomic<bool> ignition(false);
@@ -211,15 +212,15 @@ Panda *connect(std::string serial="", uint32_t index=0) {
   }
   //panda->enable_deepsleep();
 
-  if (!panda->up_to_date()) {
-    throw std::runtime_error("Panda firmware out of date. Run pandad.py to update.");
-  }
-
   #ifdef QCOM
   // power on charging, only the first time. Panda can also change mode and it causes a brief disconneciton
   static std::once_flag connected_once;
   std::call_once(connected_once, &Panda::set_usb_power_mode, panda, cereal::PeripheralState::UsbPowerMode::CDP);
   #endif
+  if (!panda->up_to_date()) {
+    throw std::runtime_error("Panda firmware out of date. Run pandad.py to update.");
+  }
+
   sync_time(panda.get(), SyncTimeDir::FROM_PANDA);
   return panda.release();
 }

@@ -396,8 +396,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   // dm icon
   if (!hideDM) {
-    drawIcon(p, radius / 2 + (bdr_s * 2), rect().bottom() - footer_h / 2,
-             dm_img, blackColor(70), dmActive ? 1.0 : 0.2);
+    int offset = UI_BORDER_SIZE + btn_size / 2;
+    int x = rightHandDM ? width() - offset : offset;
+    int y = height() - offset;
+    drawIcon(p, x, y, dm_img, blackColor(70), dmActive ? 1.0 : 0.2);
   }
 
   p.restore();
@@ -441,7 +443,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
   s->fb_h = h;
 
   #ifdef QCOM
-  auto intrinsic_matrix = fcam_intrinsic_matrix;
+  auto intrinsic_matrix = FCAM_INTRINSIC_MATRIX;
   float zoom = ZOOM / intrinsic_matrix.v[0];
   s->car_space_transform.reset();
   s->car_space_transform.translate(w / 2, h / 2 + y_offset)

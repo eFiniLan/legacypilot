@@ -217,6 +217,7 @@ public:
 private:
   #ifdef QCOM
   const float accel_samples = 5*UI_FREQ;
+  bool motionTriggered(const UIState &s);
   #endif
   bool awake = false;
   int interactive_timeout = 0;
