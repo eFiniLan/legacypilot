@@ -762,7 +762,7 @@ void boardd_main_thread(std::vector<std::string> serials) {
     threads.emplace_back(panda_state_thread, pandas, getenv("STARTED") != nullptr);
     threads.emplace_back(peripheral_control_thread, pandas[0], getenv("NO_FAN_CONTROL") != nullptr);
     #ifdef QCOM
-    threads.emplace_back(pigeon_thread, peripheral_panda);
+    threads.emplace_back(pigeon_thread, pandas[0]);
     #endif
 
     threads.emplace_back(can_send_thread, pandas, getenv("FAKESEND") != nullptr);
