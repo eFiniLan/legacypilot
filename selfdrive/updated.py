@@ -16,6 +16,7 @@ from markdown_it import MarkdownIt
 
 from common.basedir import BASEDIR
 from common.params import Params
+from common.time import system_time_valid
 from system.hardware import AGNOS, HARDWARE, EON
 from system.swaglog import cloudlog
 from selfdrive.controls.lib.alertmanager import set_offroad_alert
@@ -282,14 +283,14 @@ class Updater:
   def get_commit_hash(self, path: str = OVERLAY_MERGED) -> str:
     return run(["git", "rev-parse", "HEAD"], path).rstrip()
 
-  def set_params(self, failed_count: int, exception: Optional[str]) -> None:
+  def set_params(self, update_success: bool, failed_count: int, exception: Optional[str]) -> None:
     self.params.put("UpdateFailedCount", str(failed_count))
 
     self.params.put_bool("UpdaterFetchAvailable", self.update_available)
     self.params.put("UpdaterAvailableBranches", ','.join(self.branches.keys()))
 
     last_update = datetime.datetime.utcnow()
-    if failed_count == 0:
+    if update_success:
       t = last_update.isoformat()
       self.params.put("LastUpdateTime", t.encode('utf8'))
     else:
@@ -343,11 +344,12 @@ class Updater:
       else:
         extra_text = exception
       set_offroad_alert("Offroad_UpdateFailed", True, extra_text=extra_text)
-    elif dt.days > DAYS_NO_CONNECTIVITY_MAX and failed_count > 1:
-      set_offroad_alert("Offroad_ConnectivityNeeded", True)
-    elif dt.days > DAYS_NO_CONNECTIVITY_PROMPT:
-      remaining = max(DAYS_NO_CONNECTIVITY_MAX - dt.days, 1)
-      set_offroad_alert("Offroad_ConnectivityNeededPrompt", True, extra_text=f"{remaining} day{'' if remaining == 1 else 's'}.")
+    elif failed_count > 0:
+      if dt.days > DAYS_NO_CONNECTIVITY_MAX:
+        set_offroad_alert("Offroad_ConnectivityNeeded", True)
+      elif dt.days > DAYS_NO_CONNECTIVITY_PROMPT:
+        remaining = max(DAYS_NO_CONNECTIVITY_MAX - dt.days, 1)
+        set_offroad_alert("Offroad_ConnectivityNeededPrompt", True, extra_text=f"{remaining} day{'' if remaining == 1 else 's'}.")
 
   def check_for_update(self) -> None:
     cloudlog.info("checking for updates")
@@ -448,6 +450,9 @@ def main() -> None:
     t = datetime.datetime.utcnow().isoformat()
     params.put("InstallDate", t.encode('utf8'))
 
+  # updater = Updater()
+  # update_failed_count = 0 # TODO: Load from param?
+
   # no fetch on the first time
   wait_helper = WaitTimeHelper()
   wait_helper.only_check_for_update = True
@@ -460,12 +465,18 @@ def main() -> None:
     wait_helper.ready_event.clear()
 
     # Attempt an update
+    # exception = None
     try:
       # TODO: reuse overlay from previous updated instance if it looks clean
       init_overlay()
 
       # ensure we have some params written soon after startup
-      updater.set_params(update_failed_count, exception)
+      updater.set_params(False, update_failed_count, exception)
+
+      if not system_time_valid():
+        wait_helper.sleep(60)
+        continue
+
       update_failed_count += 1
 
       # check for update
@@ -494,7 +505,8 @@ def main() -> None:
 
     try:
       params.put("UpdaterState", "idle")
-      updater.set_params(update_failed_count, exception)
+      update_successful = (update_failed_count == 0)
+      updater.set_params(update_successful, update_failed_count, exception)
     except Exception:
       cloudlog.exception("uncaught updated exception while setting params, shouldn't happen")
 

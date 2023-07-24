@@ -59,7 +59,9 @@ private:
   QJsonObject current_destination;
   QVBoxLayout *destinations_layout;
   DestinationWidget *current_widget;
-  QPixmap close_icon;
+  DestinationWidget *home_widget;
+  DestinationWidget *work_widget;
+  std::vector<DestinationWidget *> widgets;
 
 signals:
   void closeSettings();
@@ -74,6 +76,7 @@ public:
 
 signals:
   void actionClicked();
+  void navigateTo(const QJsonObject &destination);
 
 private:
   struct NavIcons {
@@ -94,4 +97,5 @@ private:
 private:
   QLabel *icon, *title, *subtitle;
   QPushButton *action;
+  QJsonObject dest;
 };
