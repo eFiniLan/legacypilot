@@ -427,7 +427,7 @@ def main() -> None:
   exception = None
 
   if params.get_bool("DisableUpdates"):
-    updater.set_params(update_failed_count, exception)
+    updater.set_params(False, update_failed_count, exception)
     cloudlog.warning("updates are disabled by the DisableUpdates param")
     exit(0)
 
