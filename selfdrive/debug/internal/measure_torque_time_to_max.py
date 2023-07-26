@@ -34,8 +34,9 @@ if __name__ == "__main__":
     polld = poller.poll(1000)
     for sock in polld:
       msg = sock.receive()
-      with log.Event.from_bytes(msg) as log_evt:
-        evt = log_evt
+      evt = log.Event.from_bytes(msg)
+      # with log.Event.from_bytes(msg) as log_evt:
+      #   evt = log_evt
 
       for item in evt.can:
         if item.address == 0xe4 and item.src == 128:

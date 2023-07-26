@@ -208,8 +208,9 @@ class Controls:
     if REPLAY:
       controls_state = Params().get("ReplayControlsState")
       if controls_state is not None:
-        with log.ControlsState.from_bytes(controls_state) as controls_state:
-          self.v_cruise_helper.v_cruise_kph = controls_state.vCruise
+        # with log.ControlsState.from_bytes(controls_state) as controls_state:
+        controls_state = log.ControlsState.from_bytes(controls_state)
+        self.v_cruise_helper.v_cruise_kph = controls_state.vCruise
 
       if any(ps.controlsAllowed for ps in self.sm['pandaStates']):
         self.state = State.enabled

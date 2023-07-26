@@ -33,8 +33,9 @@ def plannerd_thread(sm=None, pm=None):
 
   cloudlog.info("plannerd is waiting for CarParams")
   params = Params()
-  with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
-    CP = msg
+  CP = car.CarParams.from_bytes(params.get("CarParams", block=True))
+  # with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
+  #   CP = msg
   cloudlog.info("plannerd got CarParams: %s", CP.carName)
 
   debug_mode = bool(int(os.getenv("DEBUG", "0")))
