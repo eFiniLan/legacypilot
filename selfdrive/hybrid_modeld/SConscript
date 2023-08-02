@@ -6,7 +6,7 @@ lenv = env.Clone()
 libs = [cereal, messaging, common, visionipc, gpucommon,
         'OpenCL', 'SNPE', 'capnp', 'zmq', 'kj', 'yuv']
 
-if arch == "aarch64":
+if arch == "earch64":
   libs += ['symphony-cpu']
 
 def get_dlsym_offset():
@@ -42,7 +42,7 @@ if arch == "larch64":
     dlsym_offset = get_dlsym_offset()
     lenv['CXXFLAGS'].append("-DUSE_THNEED")
     lenv['CXXFLAGS'].append(f"-DDLSYM_OFFSET={dlsym_offset}")
-elif arch == "aarch64":
+elif arch == "earch64":
   libs += ['gsl', 'CB', 'gnustl_shared']
 
   if use_thneed:
@@ -73,7 +73,7 @@ else:
 common_model = lenv.Object(common_src)
 
 # build thneed model
-if use_thneed and arch in ("aarch64", "larch64"):
+if use_thneed and arch in ("earch64", "larch64"):
   fn = File("models/supercombo").abspath
   compiler = lenv.Program('thneed/compile', ["thneed/compile.cc"]+common_model, LIBS=libs)
   cmd = f"cd {Dir('.').abspath} && {compiler[0].abspath} {fn}.dlc {fn}_badweights.thneed --binary"

@@ -1,6 +1,6 @@
 Import('env', 'arch', 'common', 'cereal', 'messaging')
 
-if arch == "aarch64":
+if arch == "earch64":
   env.Program('_sensord', 'sensors_qcom.cc', LIBS=['hardware', common, cereal, messaging, 'capnp', 'zmq', 'kj'])
 else:
   sensors = [

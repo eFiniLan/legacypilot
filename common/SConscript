@@ -25,7 +25,7 @@ files = [
 
 _gpu_libs = []
 
-if arch == "aarch64":
+if arch == "earch64":
   files += ['visionimg.cc']
   _gpu_libs += ['gui', 'adreno_utils']
 

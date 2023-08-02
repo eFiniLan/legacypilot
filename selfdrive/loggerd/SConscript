@@ -7,10 +7,10 @@ libs = [common, cereal, messaging, visionipc,
         'yuv', 'bz2', 'OpenCL']
 
 src = ['logger.cc', 'loggerd.cc']
-if arch in ["aarch64", "larch64"]:
+if arch in ["earch64", "larch64"]:
   src += ['omx_encoder.cc']
   libs += ['OmxCore', 'gsl', 'CB'] + gpucommon
-  if arch == "aarch64":
+  if arch == "earch64":
     libs += ['OmxVenc', 'cutils']
   else:
     libs += ['pthread']

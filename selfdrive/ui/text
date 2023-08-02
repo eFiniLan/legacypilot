@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -f /EON ] && [ ! -f qt/text ]; then
-  cp qt/text_aarch64 qt/text
+  cp qt/text_earch64 qt/text
 elif [ -f /TICI ] && [ ! -f qt/text ]; then
   cp qt/text_larch64 qt/text
 fi

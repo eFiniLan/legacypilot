@@ -5,7 +5,7 @@ cd $DIR
 
 if [ -d /system ]; then
   if [ -f /EON ]; then
-    export LD_LIBRARY_PATH="/data/pythonpath/third_party/snpe/aarch64/:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="/data/pythonpath/third_party/snpe/earch64/:$LD_LIBRARY_PATH"
     export ADSP_LIBRARY_PATH="/data/pythonpath/third_party/snpe/dsp/"
   fi
 else

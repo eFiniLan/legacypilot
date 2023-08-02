@@ -1,5 +1,5 @@
 Import('env', 'envCython', 'common', 'cereal', 'messaging', 'arch')
-pigeon = ['pigeon.cc'] if arch == "aarch64" else []
+pigeon = ['pigeon.cc'] if arch == "earch64" else []
 libs = ['usb-1.0', common, cereal, messaging, 'pthread', 'zmq', 'capnp', 'kj']
 panda = env.Library('panda', ['panda.cc', 'panda_comms.cc', 'spi.cc'] + pigeon)
 

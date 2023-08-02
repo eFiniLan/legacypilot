@@ -168,7 +168,7 @@ bool safety_setter_thread(std::vector<Panda *> pandas) {
     }
     util::sleep_for(100);
   }
-  LOGW("got %d bytes CarParams", params.size());
+  LOGW("got %lu bytes CarParams", params.size());
 
   AlignedBuffer aligned_buf;
   capnp::FlatArrayMessageReader cmsg(aligned_buf.align(params.data(), params.size()));
@@ -217,7 +217,7 @@ Panda *connect(std::string serial="", uint32_t index=0) {
   static std::once_flag connected_once;
   std::call_once(connected_once, &Panda::set_usb_power_mode, panda, cereal::PeripheralState::UsbPowerMode::CDP);
   #endif
-  if (!panda->up_to_date()) {
+  if (!panda->up_to_date() && !getenv("BOARDD_SKIP_FW_CHECK")) {
     throw std::runtime_error("Panda firmware out of date. Run pandad.py to update.");
   }
 
@@ -255,7 +255,7 @@ void can_send_thread(std::vector<Panda *> pandas, bool fake_send) {
         LOGT("sendcan sent to panda: %s", (panda->hw_serial()).c_str());
       }
     } else {
-      LOGE("sendcan too old to send: %llu, %llu", nanos_since_boot(), event.getLogMonoTime());
+      LOGE("sendcan too old to send: %" PRIu64 ", %" PRIu64, nanos_since_boot(), event.getLogMonoTime());
     }
   }
 }
@@ -295,7 +295,7 @@ void can_recv_thread(std::vector<Panda *> pandas) {
       std::this_thread::sleep_for(std::chrono::nanoseconds(remaining));
     } else {
       if (ignition) {
-        LOGW("missed cycles (%d) %lld", (int)-1*remaining/dt, remaining);
+        LOGW("missed cycles (%lu) %lld", (unsigned long)(-1*remaining/dt), (long long)remaining);
       }
       next_frame_time = cur_time;
     }
@@ -321,6 +321,10 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
   pandaCanStates.reserve(pandas_cnt);
   #endif
 
+  const bool red_panda_comma_three = (pandas.size() == 2) &&
+                                     (pandas[0]->hw_type == cereal::PandaState::PandaType::DOS) &&
+                                     (pandas[1]->hw_type == cereal::PandaState::PandaType::RED_PANDA);
+
   for (const auto& panda : pandas){
     auto health_opt = panda->get_state();
     if (!health_opt) {
@@ -343,6 +347,13 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
 
     if (spoofing_started) {
       health.ignition_line_pkt = 1;
+    }
+
+    // on comma three setups with a red panda, the dos can
+    // get false positive ignitions due to the harness box
+    // without a harness connector, so ignore it
+    if (red_panda_comma_three && (panda->hw_type == cereal::PandaState::PandaType::DOS)) {
+      health.ignition_line_pkt = 0;
     }
 
     ignition_local |= ((health.ignition_line_pkt != 0) || (health.ignition_can_pkt != 0));

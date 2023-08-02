@@ -9,7 +9,7 @@ if [ -f /TICI ]; then
   ARCHNAME="larch64"
   BLAS_TARGET="ARMV8A_ARM_CORTEX_A57"
 elif [ -f /EON ]; then
-  ARCHNAME="aarch64"
+  ARCHNAME="earch64"
   BLAS_TARGET="ARMV8A_ARM_CORTEX_A57"
 fi
 
@@ -80,7 +80,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   cargo build --verbose --release --target aarch64-apple-darwin
   cargo build --verbose --release --target x86_64-apple-darwin
   lipo -create -output target/release/t_renderer target/x86_64-apple-darwin/release/t_renderer target/aarch64-apple-darwin/release/t_renderer
-else 
+else
   cargo build --verbose --release
 fi
 cp target/release/t_renderer $INSTALL_DIR/

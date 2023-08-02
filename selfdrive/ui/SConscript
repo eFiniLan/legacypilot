@@ -9,12 +9,12 @@ base_libs = [common, messaging, cereal, visionipc, transformations, 'zmq',
 if arch == 'larch64':
   base_libs.append('EGL')
 
-maps = arch in ['larch64', 'x86_64']
+maps = arch in ['larch64', 'aarch64', 'x86_64']
 
-if arch == 'aarch64':
+if arch == 'earch64':
   base_libs += ['log', 'utils', 'gui', 'ui', 'CB', 'gsl', 'adreno_utils', 'cutils', 'uuid']
 
-if maps and arch == 'x86_64':
+if maps and arch != 'larch64':
   rpath = [Dir(f"#third_party/mapbox-gl-native-qt/{arch}").srcnode().abspath]
   qt_env["RPATH"] += rpath
 
@@ -29,7 +29,7 @@ widgets_src = ["ui.cc", "qt/widgets/input.cc", "qt/widgets/drive_stats.cc", "qt/
                "qt/widgets/scrollview.cc", "#third_party/qrcode/QrCode.cc",
                "qt/request_repeater.cc", "qt/qt_window.cc"]
 
-if arch != 'aarch64':
+if arch != 'earch64':
   widgets_src += ["qt/widgets/cameraview.cc", "qt/offroad/networking.cc", "qt/offroad/wifiManager.cc"]
 else:
   widgets_src += ["qt/widgets/cameraview_qcom.cc"]
@@ -84,7 +84,7 @@ translation_sources = [f"#selfdrive/ui/translations/{l}.ts" for l in languages.v
 translation_targets = [src.replace(".ts", ".qm") for src in translation_sources]
 lrelease_bin = 'third_party/qt5/larch64/bin/lrelease' if arch == 'larch64' else 'lrelease'
 
-if arch != "aarch64":
+if arch != "earch64":
   lupdate = qt_env.Command(translation_sources, qt_src, "selfdrive/ui/update_translations.py")
   lrelease = qt_env.Command(translation_targets, translation_sources, f"{lrelease_bin} $SOURCES")
   qt_env.Depends(lrelease, lupdate)
@@ -141,5 +141,5 @@ if GetOption('extras'):
     assert f[0].get_size() < 300*1e3
 
 # build watch3
-if arch in ['x86_64', 'Darwin'] or GetOption('extras'):
+if arch in ['x86_64', 'aarch64', 'Darwin'] or GetOption('extras'):
   qt_env.Program("watch3", ["watch3.cc"], LIBS=qt_libs + ['common', 'json11', 'zmq', 'visionipc', 'messaging'])
