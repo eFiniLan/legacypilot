@@ -189,7 +189,7 @@ void loggerd_thread() {
   std::unique_ptr<Poller> poller(Poller::create());
 
   // subscribe to all socks
-  for (const auto& it : services) {
+  for (const auto& [_, it] : services) {
     if (!it.should_log) continue;
 
     SubSocket * sock = SubSocket::create(ctx.get(), it.name);
