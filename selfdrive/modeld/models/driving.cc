@@ -47,6 +47,7 @@ void model_init(ModelState* s, cl_device_id device_id, cl_context context) {
 
 #ifdef NAV
   s->m->addInput("nav_features", s->nav_features, NAV_FEATURE_LEN);
+  s->m->addInput("nav_instructions", s->nav_instructions, NAV_INSTRUCTION_LEN);
 #endif
 
 #ifdef TEMPORAL
@@ -55,8 +56,8 @@ void model_init(ModelState* s, cl_device_id device_id, cl_context context) {
 
 }
 
-ModelOutput* model_eval_frame(ModelState* s, VisionBuf* buf, VisionBuf* wbuf,
-                              const mat3 &transform, const mat3 &transform_wide, float *desire_in, bool is_rhd, float *driving_style, float *nav_features, bool prepare_only) {
+ModelOutput* model_eval_frame(ModelState* s, VisionBuf* buf, VisionBuf* wbuf, const mat3 &transform, const mat3 &transform_wide,
+                              float *desire_in, bool is_rhd, float *driving_style, float *nav_features, float *nav_instructions, bool prepare_only) {
 #ifdef DESIRE
   std::memmove(&s->pulse_desire[0], &s->pulse_desire[DESIRE_LEN], sizeof(float) * DESIRE_LEN*HISTORY_BUFFER_LEN);
   if (desire_in != NULL) {
@@ -76,6 +77,7 @@ LOGT("Desire enqueued");
 
 #ifdef NAV
   std::memcpy(s->nav_features, nav_features, sizeof(float)*NAV_FEATURE_LEN);
+  std::memcpy(s->nav_instructions, nav_instructions, sizeof(float)*NAV_INSTRUCTION_LEN);
 #endif
 
 #ifdef DRIVING_STYLE
@@ -262,7 +264,7 @@ void fill_plan(cereal::ModelDataV2::Builder &framed, const ModelOutputPlanPredic
   std::array<float, TRAJECTORY_SIZE> acc_x, acc_y, acc_z;
   std::array<float, TRAJECTORY_SIZE> rot_rate_x, rot_rate_y, rot_rate_z;
 
-  for(int i=0; i<TRAJECTORY_SIZE; i++) {
+  for (int i=0; i<TRAJECTORY_SIZE; i++) {
     pos_x[i] = plan.mean[i].position.x;
     pos_y[i] = plan.mean[i].position.y;
     pos_z[i] = plan.mean[i].position.z;

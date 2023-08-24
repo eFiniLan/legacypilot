@@ -1,5 +1,6 @@
 #include "selfdrive/ui/ui.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -175,7 +176,7 @@ static void update_state(UIState *s) {
                         1,0,0;
     Eigen::Matrix3d view_from_calib = view_from_device * device_from_calib;
     #ifndef QCOM
-    Eigen::Matrix3d view_from_wide_calib = view_from_device * wide_from_device * device_from_calib ;
+    Eigen::Matrix3d view_from_wide_calib = view_from_device * wide_from_device * device_from_calib;
     #endif
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
@@ -333,8 +334,11 @@ void Device::setAwake(bool on) {
   }
 }
 
-void Device::resetInteractiveTimeout() {
-  interactive_timeout = (ignition_on ? 10 : 30) * UI_FREQ;
+void Device::resetInteractiveTimeout(int timeout) {
+  if (timeout == -1) {
+    timeout = (ignition_on ? 10 : 30);
+  }
+  interactive_timeout = timeout * UI_FREQ;
 }
 
 void Device::updateBrightness(const UIState &s) {

@@ -1,5 +1,6 @@
 #include "selfdrive/ui/qt/offroad/driverview.h"
 
+#include <algorithm>
 #include <QPainter>
 
 #include "selfdrive/ui/qt/qt_window.h"
@@ -41,10 +42,12 @@ void DriverViewScene::showEvent(QShowEvent* event) {
   is_rhd = params.getBool("IsRhdDetected");
   #endif
   params.putBool("IsDriverViewEnabled", true);
+  device()->resetInteractiveTimeout(60);
 }
 
 void DriverViewScene::hideEvent(QHideEvent* event) {
   params.putBool("IsDriverViewEnabled", false);
+  device()->resetInteractiveTimeout();
 }
 
 void DriverViewScene::frameUpdated() {
