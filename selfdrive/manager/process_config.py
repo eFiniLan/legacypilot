@@ -78,7 +78,8 @@ procs = [
 
   # debug procs
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], onroad=False, callback=notcar),
-  PythonProcess("webjoystick", "tools.bodyteleop.web", onroad=False, callback=notcar),
+  # rick - webjoystick needs aiohttp, install additional modules manually: pip install aiohttp aiortc
+  # PythonProcess("webjoystick", "tools.bodyteleop.web", onroad=False, callback=notcar),
 
   # EON only
   PythonProcess("rtshield", "selfdrive.rtshield", enabled=EON),
