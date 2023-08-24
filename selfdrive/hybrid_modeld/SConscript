@@ -85,7 +85,7 @@ if use_thneed and arch in ("earch64", "larch64"):
   kernels = [os.path.join(kernel_path, x) for x in os.listdir(kernel_path) if x.endswith(".cl")]
   cenv.Command(fn + "_badweights.thneed", [fn + ".dlc", kernels, compiler], cmd)
 
-  from selfdrive.hybrid_modeld.thneed.weights_fixup import weights_fixup
+  from openpilot.selfdrive.hybrid_modeld.thneed.weights_fixup import weights_fixup
   def weights_fixup_action(target, source, env):
     weights_fixup(target[0].abspath, source[0].abspath, source[1].abspath)
 

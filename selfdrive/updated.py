@@ -224,7 +224,7 @@ def handle_agnos_update() -> None:
 
 
 def handle_neos_update() -> None:
-  from system.hardware.eon.neos import download_neos_update
+  from openpilot.system.hardware.eon.neos import download_neos_update
 
   cur_neos = HARDWARE.get_os_version()
   updated_neos = run(["bash", "-c", r"unset REQUIRED_NEOS_VERSION && source launch_env.sh && \

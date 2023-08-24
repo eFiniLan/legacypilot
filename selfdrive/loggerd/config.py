@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from selfdrive.hardware import PC
+from openpilot.selfdrive.hardware import PC
 
 if os.environ.get('LOG_ROOT', False):
   ROOT = os.environ['LOG_ROOT']

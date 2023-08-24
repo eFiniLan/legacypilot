@@ -8,10 +8,10 @@ import subprocess
 from typing import List, Union
 
 from cereal import log
-from system.hardware.base import HardwareBase, ThermalConfig
+from openpilot.system.hardware.base import HardwareBase, ThermalConfig
 
 try:
-  from common.params import Params
+  from openpilot.common.params import Params
 except Exception:
   # openpilot is not built yet
   Params = None

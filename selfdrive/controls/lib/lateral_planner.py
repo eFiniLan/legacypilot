@@ -9,7 +9,7 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED,
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 import cereal.messaging as messaging
 from cereal import log
-from selfdrive.hardware import EON
+from openpilot.selfdrive.hardware import EON
 
 TRAJECTORY_SIZE = 33
 if EON:
