@@ -187,7 +187,7 @@ class PowerMonitoring:
     if offroad_timestamp is None:
       return False
 
-    now = sec_since_boot()
+    now = time.monotonic()
 
     disable_charging = False
     disable_charging |= (now - offroad_timestamp) > MAX_TIME_OFFROAD_S
@@ -203,7 +203,7 @@ class PowerMonitoring:
     if offroad_timestamp is None:
       return False
 
-    now = sec_since_boot()
+    now = time.monotonic()
     panda_charging = (peripheralState.usbPowerMode != log.PeripheralState.UsbPowerMode.client)
     # BATT_PERC_OFF = 3 if self.is_oneplus else 10
 
