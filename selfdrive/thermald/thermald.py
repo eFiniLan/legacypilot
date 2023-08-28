@@ -24,7 +24,7 @@ from openpilot.selfdrive.loggerd.config import get_available_percent
 # from openpilot.selfdrive.statsd import statlog
 from openpilot.system.swaglog import cloudlog
 from openpilot.selfdrive.thermald.power_monitoring import PowerMonitoring
-from openpilot.selfdrive.thermald.fan_controller import TiciFanController, EonFanController
+from openpilot.selfdrive.thermald.fan_controller import TiciFanController, EonFanController, UnoFanController
 from openpilot.system.version import terms_version, training_version
 
 ThermalStatus = log.DeviceState.ThermalStatus
