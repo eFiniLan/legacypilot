@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 
-from common.xattr import getxattr as getattr1
-from common.xattr import setxattr as setattr1
+from openpilot.common.xattr import getxattr as getattr1
+from openpilot.common.xattr import setxattr as setattr1
 
 cached_attributes: Dict[Tuple, bytes] = {}
 def getxattr(path: str, attr_name: bytes) -> bytes:

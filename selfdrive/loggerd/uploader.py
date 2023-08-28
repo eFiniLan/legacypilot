@@ -10,12 +10,12 @@ from pathlib import Path
 
 from cereal import log
 import cereal.messaging as messaging
-from common.api import Api
-from common.params import Params
-from selfdrive.hardware import TICI
-from selfdrive.loggerd.xattr_cache import getxattr, setxattr
-from selfdrive.loggerd.config import ROOT
-from system.swaglog import cloudlog
+from openpilot.common.api import Api
+from openpilot.common.params import Params
+from openpilot.selfdrive.hardware import TICI
+from openpilot.selfdrive.loggerd.xattr_cache import getxattr, setxattr
+from openpilot.selfdrive.loggerd.config import ROOT
+from openpilot.system.swaglog import cloudlog
 
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'

@@ -3,9 +3,9 @@ import os
 import time
 import datetime
 
-from common.params import Params
-from system.hardware.eon.hardware import getprop
-from system.swaglog import cloudlog
+from openpilot.common.params import Params
+from openpilot.system.hardware.eon.hardware import getprop
+from openpilot.system.swaglog import cloudlog
 
 def main():
   prev = b""

@@ -4,10 +4,10 @@ import gc
 import cereal.messaging as messaging
 from cereal import car
 from cereal import log
-from common.params import Params
-from common.realtime import set_realtime_priority
-from selfdrive.controls.lib.events import Events
-from selfdrive.legacy_monitoring.driver_monitor import DriverStatus
+from openpilot.common.params import Params
+from openpilot.common.realtime import set_realtime_priority
+from openpilot.selfdrive.controls.lib.events import Events
+from openpilot.selfdrive.legacy_monitoring.driver_monitor import DriverStatus
 
 
 def dmonitoringd_thread(sm=None, pm=None):

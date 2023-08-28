@@ -1,17 +1,16 @@
-import random
-import threading
 import time
-from statistics import mean
+import threading
 from typing import Optional
 
-from cereal import log
-from common.params import Params, put_nonblocking
-from common.realtime import sec_since_boot
-from system.hardware import HARDWARE, TICI
-from system.swaglog import cloudlog
-# from selfdrive.statsd import statlog
-import os
+from openpilot.common.params import Params, put_nonblocking
+from openpilot.system.hardware import HARDWARE, TICI
+from openpilot.system.swaglog import cloudlog
+# from openpilot.selfdrive.statsd import statlog
 
+from statistics import mean
+import random
+from cereal import log
+import os
 if TICI:
   CAR_VOLTAGE_LOW_PASS_K = 0.011 # LPF gain for 45s tau (dt/tau / (dt/tau + 1))
 else:
@@ -51,7 +50,7 @@ class PowerMonitoring:
   # Calculation tick
   def calculate(self, voltage: Optional[int], ignition: bool):
     try:
-      now = sec_since_boot()
+      now = time.monotonic()
 
       # If peripheralState is None, we're probably not in a car, so we don't care
       if voltage is None:
@@ -166,7 +165,7 @@ class PowerMonitoring:
     if offroad_timestamp is None:
       return False
 
-    now = sec_since_boot()
+    now = time.monotonic()
     should_shutdown = False
     offroad_time = (now - offroad_timestamp)
     low_voltage_shutdown = (self.car_voltage_mV < (VBATT_PAUSE_CHARGING * 1e3) and
@@ -188,7 +187,7 @@ class PowerMonitoring:
     if offroad_timestamp is None:
       return False
 
-    now = sec_since_boot()
+    now = time.monotonic()
 
     disable_charging = False
     disable_charging |= (now - offroad_timestamp) > MAX_TIME_OFFROAD_S
@@ -204,7 +203,7 @@ class PowerMonitoring:
     if offroad_timestamp is None:
       return False
 
-    now = sec_since_boot()
+    now = time.monotonic()
     panda_charging = (peripheralState.usbPowerMode != log.PeripheralState.UsbPowerMode.client)
     # BATT_PERC_OFF = 3 if self.is_oneplus else 10
 

@@ -12,7 +12,7 @@ import tempfile
 import multiprocessing
 from pathlib import Path
 
-from system.hardware.eon.neos import RECOVERY_DEV, NEOSUPDATE_DIR, get_fn, download_file, \
+from openpilot.system.hardware.eon.neos import RECOVERY_DEV, NEOSUPDATE_DIR, get_fn, download_file, \
                                         verify_update_ready, download_neos_update
 
 EON_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))

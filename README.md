@@ -41,6 +41,10 @@ I encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for 
 * Navigation On Openpilot (NOO) is not supported, as it requires a newer driving model that is not currently available in legacypilot.
 * Services are not optimized for resource usage, and using all services may result in overheating issues.
 * Language files can only be generated in a PC due to missing Qt5 tools.
+* webjoystick is disabled as it requires additional python modules. (aiohttp and others)
+* Starting from August 7th, 2023, comma has removed ESP/GPS support from Pandas. You can find more details about this change in this link. 
+  * Going forward, I will focus solely on maintaining the safety aspects of the code, ensuring that vehicle support and safety declarations remain up to date.
+
 
 ## Configuration
 

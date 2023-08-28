@@ -5,8 +5,8 @@ import zipfile
 import numpy as np
 from tqdm import tqdm
 
-from common.basedir import BASEDIR
-from selfdrive.hybrid_modeld.thneed.lib import load_thneed, save_thneed
+from openpilot.common.basedir import BASEDIR
+from openpilot.selfdrive.hybrid_modeld.thneed.lib import load_thneed, save_thneed
 
 # this is junk code, but it doesn't have deps
 def load_dlc_weights(fn):
