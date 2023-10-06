@@ -347,6 +347,7 @@ C2NetworkPanel::C2NetworkPanel(QWidget *parent) : QWidget(parent) {
   list->setSpacing(30);
   // wifi + tethering buttons
 
+#ifdef QCOM
   auto wifiBtn = new ButtonControl(tr("Wi-Fi Settings"), tr("OPEN"));
   QObject::connect(wifiBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_wifi(); });
   list->addItem(wifiBtn);
@@ -354,6 +355,7 @@ C2NetworkPanel::C2NetworkPanel(QWidget *parent) : QWidget(parent) {
   auto tetheringBtn = new ButtonControl(tr("Tethering Settings"), tr("OPEN"));
   QObject::connect(tetheringBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_tethering(); });
   list->addItem(tetheringBtn);
+#endif
 
   ipaddress = new LabelControl(tr("IP Address"), "");
   list->addItem(ipaddress);
