@@ -13,7 +13,7 @@ V_CRUISE_MIN = 8
 V_CRUISE_MAX = 145
 V_CRUISE_UNSET = 255
 V_CRUISE_INITIAL = 40
-V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 105
+V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 40
 IMPERIAL_INCREMENT = 1.6  # should be CV.MPH_TO_KPH, but this causes rounding errors
 
 MIN_SPEED = 1.0
@@ -37,6 +37,12 @@ CRUISE_INTERVAL_SIGN = {
   ButtonType.decelCruise: -1,
 }
 
+# rick - for 0813
+LAT_MPC_N = 16
+class MPC_COST_LAT:
+  PATH = 1.0
+  HEADING = 1.0
+  STEER_RATE = 1.0
 
 class VCruiseHelper:
   def __init__(self, CP):
