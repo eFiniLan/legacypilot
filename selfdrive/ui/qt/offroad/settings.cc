@@ -39,7 +39,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "dp_0813",
       tr("Use 0.8.13.1 Driving Model"),
       tr("When enabled, openpilot will use the good old driving model from 0.8.13.1.\nFor safety reason, vision only openpilot longitudinal will be disabled.\nReboot required."),
-      "",
+      "../assets/offroad/icon_ai.png",
     },
     {
       "ExperimentalLongitudinalEnabled",
