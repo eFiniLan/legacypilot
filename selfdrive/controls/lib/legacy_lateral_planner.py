@@ -9,7 +9,6 @@ from openpilot.selfdrive.controls.lib.lane_planner import LanePlanner, TRAJECTOR
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 import cereal.messaging as messaging
 from cereal import log
-from openpilot.common.params import Params
 
 STEER_RATE_COST = {
   "chrysler": 0.7,
@@ -29,9 +28,6 @@ class LateralPlanner:
   def __init__(self, CP, debug=False):
     self.LP = LanePlanner()
     self.DH = DesireHelper()
-    self._dp_lat_lane_priority_mode = Params().get_bool("dp_lat_lane_priority_mode")
-    self._dp_lat_lane_priority_mode_active = False
-    self._dp_lat_lane_priority_mode_active_prev = False
 
     self.last_cloudlog_t = 0
     try:
@@ -45,8 +41,6 @@ class LateralPlanner:
     self.plan_yaw = np.zeros((TRAJECTORY_SIZE,))
     self.t_idxs = np.arange(TRAJECTORY_SIZE)
     self.y_pts = np.zeros(TRAJECTORY_SIZE)
-    # dp // mapd - for vision turn controller
-    self._d_path_w_lines_xyz = np.zeros((TRAJECTORY_SIZE, 3))
 
     self.lat_mpc = LateralMpc()
     self.reset_mpc(np.zeros(4))
@@ -78,11 +72,7 @@ class LateralPlanner:
       self.LP.lll_prob *= self.DH.lane_change_ll_prob
       self.LP.rll_prob *= self.DH.lane_change_ll_prob
 
-    # dp - check laneline prob when priority is on
     use_laneline = False
-    if self._dp_lat_lane_priority_mode:
-      self._update_laneless_laneline_mode()
-      use_laneline = self._dp_lat_lane_priority_mode_active
 
     # Calculate final driving path and set MPC costs
     if use_laneline:
@@ -94,8 +84,6 @@ class LateralPlanner:
       # Heading cost is useful at low speed, otherwise end of plan can be off-heading
       heading_cost = interp(v_ego, [5.0, 10.0], [MPC_COST_LAT.HEADING, 0.0])
       self.lat_mpc.set_weights(path_cost, heading_cost, self.steer_rate_cost)
-
-    self._d_path_w_lines_xyz = d_path_xyz
 
     y_pts = np.interp(v_ego * self.t_idxs[:LAT_MPC_N + 1], np.linalg.norm(d_path_xyz, axis=1), d_path_xyz[:, 1])
     heading_pts = np.interp(v_ego * self.t_idxs[:LAT_MPC_N + 1], np.linalg.norm(self.path_xyz, axis=1), self.plan_yaw)
@@ -146,30 +134,8 @@ class LateralPlanner:
     lateralPlan.solverExecutionTime = self.lat_mpc.solve_time
 
     lateralPlan.desire = self.DH.desire
-    lateralPlan.useLaneLines = self._dp_lat_lane_priority_mode and self._dp_lat_lane_priority_mode_active
+    lateralPlan.useLaneLines = False
     lateralPlan.laneChangeState = self.DH.lane_change_state
     lateralPlan.laneChangeDirection = self.DH.lane_change_direction
 
     pm.send('lateralPlan', plan_send)
-
-    # dp - extension
-    plan_ext_send = messaging.new_message('lateralPlanExt')
-
-    lateralPlanExt = plan_ext_send.lateralPlanExt
-    # for vision turn controller
-    lateralPlanExt.dPathWLinesX = [float(x) for x in self._d_path_w_lines_xyz[:, 0]]
-    lateralPlanExt.dPathWLinesY = [float(y) for y in self._d_path_w_lines_xyz[:, 1]]
-
-    pm.send('lateralPlanExt', plan_ext_send)
-
-  def _update_laneless_laneline_mode(self):
-    # decide what mode should we use
-    if (self.LP.lll_prob + self.LP.rll_prob)/2 < 0.3:
-      self._dp_lat_lane_priority_mode_active = False
-    if (self.LP.lll_prob + self.LP.rll_prob)/2 > 0.5:
-      self._dp_lat_lane_priority_mode_active = True
-
-    # perform reset mpc
-    if self._dp_lat_lane_priority_mode_active != self._dp_lat_lane_priority_mode_active_prev:
-      self.reset_mpc()
-    self._dp_lat_lane_priority_mode_active_prev = self._dp_lat_lane_priority_mode_active

@@ -47,6 +47,7 @@ def plannerd_thread(sm=None, pm=None):
 
   longitudinal_planner = LongitudinalPlanner(CP)
   lateral_planner = LateralPlanner(CP, debug=debug_mode)
+  is_old_model = Params().get_bool("dp_0813")
 
   if sm is None:
     sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2'],
@@ -63,7 +64,8 @@ def plannerd_thread(sm=None, pm=None):
       lateral_planner.publish(sm, pm)
       longitudinal_planner.update(sm)
       longitudinal_planner.publish(sm, pm)
-      publish_ui_plan(sm, pm, lateral_planner, longitudinal_planner)
+      if not is_old_model:
+        publish_ui_plan(sm, pm, lateral_planner, longitudinal_planner)
 
 def main(sm=None, pm=None):
   plannerd_thread(sm, pm)
