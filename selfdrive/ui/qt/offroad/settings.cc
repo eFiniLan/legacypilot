@@ -132,6 +132,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
     updateToggles();
   });
+
+  // rick - reflect model toggle change
+  connect(toggles["dp_0813"], &ToggleControl::toggleFlipped, [=]() {
+    updateToggles();
+  });
 }
 
 void TogglesPanel::expandToggleDescription(const QString &param) {
