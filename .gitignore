@@ -96,3 +96,8 @@ selfdrive/hybrid_modeld/models/supercombo.thneed
 selfdrive/hybrid_modeld/models/supercombo_badweights.thneed
 selfdrive/hybrid_modeld/thneed/compile
 selfdrive/loggerd/bootlog
+
+selfdrive/legacy_modeld/_modeld
+selfdrive/legacy_modeld/models/supercombo.thneed
+selfdrive/legacy_modeld/models/supercombo_badweights.thneed
+selfdrive/legacy_modeld/thneed/compile
