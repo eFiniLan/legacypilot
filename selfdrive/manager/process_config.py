@@ -34,8 +34,6 @@ def ublox(started, params, CP: car.CarParams) -> bool:
 def qcomgps(started, params, CP: car.CarParams) -> bool:
   return started and not ublox_available()
 
-use_old_model = Params().get_bool("dp_0813")
-
 procs = [
   NativeProcess("camerad", "selfdrive/camerad", ["./camerad"], callback=driverview),
   NativeProcess("clocksd", "system/clocksd", ["./clocksd"]),
@@ -50,8 +48,7 @@ procs = [
   # NativeProcess("encoderd", "system/loggerd", ["./encoderd"]),
   # NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], onroad=False, callback=notcar),
   NativeProcess("loggerd", "selfdrive/loggerd", ["./loggerd"], onroad=False, callback=logging),
-  NativeProcess("modeld", "selfdrive/hybrid_modeld", ["./modeld"], enabled=not use_old_model),
-  NativeProcess("modeld", "selfdrive/legacy_modeld", ["./modeld"], enabled=use_old_model),
+  NativeProcess("modeld", "selfdrive/hybrid_modeld" if not Params().get_bool("dp_0813") else "selfdrive/legacy_modeld", ["./modeld"]),
   # NativeProcess("mapsd", "selfdrive/navd", ["./mapsd"]),
   # NativeProcess("navmodeld", "selfdrive/modeld", ["./navmodeld"]),
   NativeProcess("sensord", "system/sensord", ["./sensord"], enabled=not PC, offroad=EON),
