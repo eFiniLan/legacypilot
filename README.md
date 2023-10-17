@@ -42,8 +42,9 @@ I encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for 
 * Services are not optimized for resource usage, and using all services may result in overheating issues.
 * Language files can only be generated in a PC due to missing Qt5 tools.
 * webjoystick is disabled as it requires additional python modules. (aiohttp and others)
-* Starting from August 7th, 2023, comma has removed ESP/GPS support from Pandas. You can find more details about this change in this link. 
+* Starting from August 7th, 2023, comma has removed ESP/GPS support from Pandas. You can find more details about this change in this [link](https://github.com/commaai/panda/commit/c66b98b2a67441faa4cfcd36c3c9d9f90474cd08).
   * Going forward, I will focus solely on maintaining the safety aspects of the code, ensuring that vehicle support and safety declarations remain up to date.
+* For safety concern, End-to-End / vision only longitudinal control only available in 0.8.16 driving model.
 
 
 ## Configuration
