@@ -308,7 +308,6 @@ py_include = sysconfig.get_paths()['include']
 envCython = env.Clone()
 envCython["CPPPATH"] += [py_include, np.get_include()]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-shadow", "-Wno-deprecated-declarations"]
-envCython["CCFLAGS"].remove("-Werror")
 
 envCython["LIBS"] = []
 if arch == "Darwin":
@@ -493,10 +492,13 @@ SConscript(['common/transformations/SConscript'])
 
 SConscript(['selfdrive/boardd/SConscript'])
 SConscript(['selfdrive/controls/lib/lateral_mpc_lib/SConscript'])
+SConscript(['selfdrive/controls/lib/legacy_lateral_mpc_lib/SConscript'])
 SConscript(['selfdrive/controls/lib/longitudinal_mpc_lib/SConscript'])
+SConscript(['selfdrive/controls/lib/legacy_longitudinal_mpc_lib/SConscript'])
 SConscript(['selfdrive/locationd/SConscript'])
 # SConscript(['selfdrive/navd/SConscript'])
 SConscript(['selfdrive/hybrid_modeld/SConscript'])
+SConscript(['selfdrive/legacy_modeld/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
 
 if (arch in ['x86_64', 'aarch64', 'Darwin'] and Dir('#tools/cabana/').exists()) or GetOption('extras'):

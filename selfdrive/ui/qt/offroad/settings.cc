@@ -36,6 +36,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_openpilot.png",
     },
     {
+      "dp_0813",
+      tr("Use 0.8.13.1 Driving Model"),
+      tr("When enabled, openpilot will use the good old driving model from 0.8.13.1.\nFor safety reason, vision only openpilot longitudinal will be disabled.\nReboot required."),
+      "../assets/offroad/icon_ai.png",
+    },
+    {
       "ExperimentalLongitudinalEnabled",
       tr("openpilot Longitudinal Control (Alpha)"),
       QString("<b>%1</b><br><br>%2")
@@ -126,6 +132,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
     updateToggles();
   });
+
+  // rick - reflect model toggle change
+  connect(toggles["dp_0813"], &ToggleControl::toggleFlipped, [=]() {
+    updateToggles();
+  });
 }
 
 void TogglesPanel::expandToggleDescription(const QString &param) {
@@ -160,8 +171,15 @@ void TogglesPanel::updateToggles() {
                                           "When a navigation destination is set and the driving model is using it as input, the driving path on the map will turn green."));
 
   const bool is_release = params.getBool("IsReleaseBranch");
+  const bool is_old_model = params.getBool("dp_0813");
   auto cp_bytes = params.get("CarParamsPersistent");
-  if (!cp_bytes.empty()) {
+  if (is_old_model) {
+    // rick - we should hide and remove experimental long related toggles
+    experimental_mode_toggle->setVisible(false);
+    op_long_toggle->setVisible(false);
+    params.remove("ExperimentalMode");
+    params.remove("ExperimentalLongitudinalEnabled");
+  } else if (!cp_bytes.empty()) {
     AlignedBuffer aligned_buf;
     capnp::FlatArrayMessageReader cmsg(aligned_buf.align(cp_bytes.data(), cp_bytes.size()));
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
@@ -347,6 +365,7 @@ C2NetworkPanel::C2NetworkPanel(QWidget *parent) : QWidget(parent) {
   list->setSpacing(30);
   // wifi + tethering buttons
 
+#ifdef QCOM
   auto wifiBtn = new ButtonControl(tr("Wi-Fi Settings"), tr("OPEN"));
   QObject::connect(wifiBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_wifi(); });
   list->addItem(wifiBtn);
@@ -354,6 +373,7 @@ C2NetworkPanel::C2NetworkPanel(QWidget *parent) : QWidget(parent) {
   auto tetheringBtn = new ButtonControl(tr("Tethering Settings"), tr("OPEN"));
   QObject::connect(tetheringBtn, &ButtonControl::clicked, [=]() { HardwareEon::launch_tethering(); });
   list->addItem(tetheringBtn);
+#endif
 
   ipaddress = new LabelControl(tr("IP Address"), "");
   list->addItem(ipaddress);

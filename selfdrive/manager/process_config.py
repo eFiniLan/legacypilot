@@ -48,7 +48,7 @@ procs = [
   # NativeProcess("encoderd", "system/loggerd", ["./encoderd"]),
   # NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], onroad=False, callback=notcar),
   NativeProcess("loggerd", "selfdrive/loggerd", ["./loggerd"], onroad=False, callback=logging),
-  NativeProcess("modeld", "selfdrive/hybrid_modeld", ["./modeld"]),
+  NativeProcess("modeld", "selfdrive/hybrid_modeld" if not Params().get_bool("dp_0813") else "selfdrive/legacy_modeld", ["./modeld"]),
   # NativeProcess("mapsd", "selfdrive/navd", ["./mapsd"]),
   # NativeProcess("navmodeld", "selfdrive/modeld", ["./navmodeld"]),
   NativeProcess("sensord", "system/sensord", ["./sensord"], enabled=not PC, offroad=EON),

@@ -81,6 +81,7 @@ class Controls:
     self.params = Params()
     self.dp_no_gps_ctrl = self.params.get_bool("dp_no_gps_ctrl")
     self.dp_no_fan_ctrl = self.params.get_bool("dp_no_fan_ctrl")
+    self.dp_0813 = self.params.get_bool("dp_0813")
     self.sm = sm
     if self.sm is None:
       ignore = ['testJoystick']
@@ -97,7 +98,7 @@ class Controls:
       get_one_can(self.can_sock)
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
-      experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled") # and not is_release_branch()
+      experimental_long_allowed = not self.dp_0813 and self.params.get_bool("ExperimentalLongitudinalEnabled") # and not is_release_branch()
       self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
     else:
       self.CI, self.CP = CI, CI.CP
@@ -851,6 +852,9 @@ class Controls:
 
     self.is_metric = self.params.get_bool("IsMetric")
     self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+    # rick - we should disable experimental mode on radarless car w/ 0.8.13 model
+    if self.CP.radarUnavailable and self.dp_0813:
+      self.experimental_mode = False
 
     # Sample data from sockets and get a carState
     CS = self.data_sample()

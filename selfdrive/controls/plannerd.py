@@ -6,10 +6,15 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.system.swaglog import cloudlog
 from openpilot.selfdrive.hybrid_modeld.constants import T_IDXS
-from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
-from openpilot.selfdrive.controls.lib.lateral_planner import LateralPlanner
 import cereal.messaging as messaging
 from openpilot.system.hardware import TICI
+
+if Params().get_bool("dp_0813"):
+  from openpilot.selfdrive.controls.lib.legacy_longitudinal_planner import LongitudinalPlanner
+  from openpilot.selfdrive.controls.lib.legacy_lateral_planner import LateralPlanner
+else:
+  from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
+  from openpilot.selfdrive.controls.lib.lateral_planner import LateralPlanner
 
 def cumtrapz(x, t):
   return np.concatenate([[0], np.cumsum(((x[0:-1] + x[1:])/2) * np.diff(t))])

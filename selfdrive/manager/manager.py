@@ -50,6 +50,7 @@ def manager_init() -> None:
     ("dp_no_gps_ctrl", "0"),
     ("dp_no_fan_ctrl", "0"),
     ("dp_logging", "0"),
+    ("dp_0813", "1"),
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))
