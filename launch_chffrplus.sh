@@ -165,6 +165,12 @@ function two_init {
     echo "Installing spidev.cpython-38.so..."
     cp -f "$LIB_PATH/spidev.cpython-38.so" "$PY_LIB_DEST/"
   fi
+  # StrEnum in values.py
+  MODULE="strenum"
+  if [ ! -d "$PY_LIB_DEST/$MODULE" ]; then
+    echo "Installing $MODULE..."
+    tar -zxvf "$LIB_PATH/$MODULE.tar.gz" -C "$PY_LIB_DEST/"
+  fi
   mount -o remount,r /system
 
   # Check for NEOS update

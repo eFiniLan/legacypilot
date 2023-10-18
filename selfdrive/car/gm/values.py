@@ -2,6 +2,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
+from strenum import StrEnum
 from typing import Dict, List, Union
 
 from cereal import car
@@ -61,7 +62,7 @@ class CarControllerParams:
     self.BRAKE_LOOKUP_V = [self.MAX_BRAKE, 0.]
 
 
-class CAR:
+class CAR(StrEnum):
   HOLDEN_ASTRA = "HOLDEN ASTRA RS-V BK 2017"
   VOLT = "CHEVROLET VOLT PREMIER 2017"
   CADILLAC_ATS = "CADILLAC ATS Premium Performance 2018"

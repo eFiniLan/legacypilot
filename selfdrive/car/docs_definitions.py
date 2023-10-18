@@ -85,6 +85,7 @@ class CarHarness(EnumBase):
   bosch_a = BaseCarHarness("Honda Bosch A connector")
   bosch_b = BaseCarHarness("Honda Bosch B connector")
   toyota_a = BaseCarHarness("Toyota A connector")
+  toyota_b = BaseCarHarness("Toyota B connector")
   subaru_a = BaseCarHarness("Subaru A connector")
   subaru_b = BaseCarHarness("Subaru B connector")
   subaru_c = BaseCarHarness("Subaru C connector")
@@ -110,6 +111,7 @@ class CarHarness(EnumBase):
   hyundai_o = BaseCarHarness("Hyundai O connector")
   hyundai_p = BaseCarHarness("Hyundai P connector")
   hyundai_q = BaseCarHarness("Hyundai Q connector")
+  hyundai_r = BaseCarHarness("Hyundai R connector")
   custom = BaseCarHarness("Developer connector")
   obd_ii = BaseCarHarness("OBD-II connector", parts=[Cable.long_obdc_cable, Cable.long_obdc_cable], has_connector=False)
   gm = BaseCarHarness("GM connector")
@@ -121,9 +123,9 @@ class CarHarness(EnumBase):
 
 
 class Device(EnumBase):
-  three = BasePart("comma three", parts=[Mount.mount, Cable.right_angle_obd_c_cable_1_5ft])
-  # variant of comma three with angled mounts
-  three_angled_mount = BasePart("comma three", parts=[Mount.angled_mount_8_degrees, Cable.right_angle_obd_c_cable_1_5ft])
+  threex = BasePart("comma 3X", parts=[Mount.mount, Cable.right_angle_obd_c_cable_1_5ft])
+  # variant of comma 3X with angled mounts
+  threex_angled_mount = BasePart("comma 3X", parts=[Mount.angled_mount_8_degrees, Cable.right_angle_obd_c_cable_1_5ft])
   red_panda = BasePart("red panda")
 
 
@@ -147,7 +149,7 @@ class PartType(Enum):
   tool = Tool
 
 
-DEFAULT_CAR_PARTS: List[EnumBase] = [Device.three]
+DEFAULT_CAR_PARTS: List[EnumBase] = [Device.threex]
 
 
 @dataclass
@@ -158,7 +160,7 @@ class CarParts:
     return copy.deepcopy(self)
 
   @classmethod
-  def common(cls, add: List[EnumBase] = None, remove: List[EnumBase] = None):
+  def common(cls, add: Optional[List[EnumBase]] = None, remove: Optional[List[EnumBase]] = None):
     p = [part for part in (add or []) + DEFAULT_CAR_PARTS if part not in (remove or [])]
     return cls(p)
 
@@ -174,8 +176,8 @@ CarFootnote = namedtuple("CarFootnote", ["text", "column", "docs_only", "shop_fo
 
 class CommonFootnote(Enum):
   EXP_LONG_AVAIL = CarFootnote(
-    "Experimental openpilot longitudinal control is available behind a toggle; " +
-    "the toggle is only available in non-release branches such as `devel` or `master-ci`. ",
+    "openpilot Longitudinal Control (Alpha) is available behind a toggle; " +
+    "the toggle is only available in non-release branches such as `devel` or `master-ci`.",
     Column.LONGITUDINAL, docs_only=True)
   EXP_LONG_DSU = CarFootnote(
     "By default, this car will use the stock Adaptive Cruise Control (ACC) for longitudinal control. " +
