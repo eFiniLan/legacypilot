@@ -1,7 +1,8 @@
 # ruff: noqa: E501
 from collections import defaultdict
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import Enum
+from strenum import StrEnum
 from typing import Dict, List, Union
 
 from cereal import car

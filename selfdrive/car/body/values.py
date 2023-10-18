@@ -1,4 +1,4 @@
-from enum import StrEnum
+from strenum import StrEnum
 from typing import Dict
 
 from cereal import car

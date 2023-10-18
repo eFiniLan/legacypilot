@@ -1,7 +1,8 @@
 # ruff: noqa: E501
 import re
 from dataclasses import dataclass
-from enum import Enum, IntFlag, StrEnum
+from enum import Enum, IntFlag
+from strenum import StrEnum
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from cereal import car
