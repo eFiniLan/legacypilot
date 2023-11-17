@@ -10,6 +10,9 @@ from openpilot.selfdrive.car.volkswagen.values import CANBUS, PQ_CARS, CarContro
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 LongCtrlState = car.CarControl.Actuators.LongControlState
 
+PQ_TIMEBOMB_BYPASS_WARNING = 34000 # frames, at 5 mins and 40 secs
+PQ_TIMEBOMB_BYPASS_START = 34500 # frames, at 5 mins and 45 secs
+PQ_TIMEBOMB_BYPASS_END = 34800 # frames, at 5 mins and 48 secs
 
 class CarController:
   def __init__(self, dbc_name, CP, VM):
@@ -24,6 +27,10 @@ class CarController:
     self.eps_timer_soft_disable_alert = False
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
+
+    # rick - pq time bomb
+    self.pq_timebomb_counter = 0
+    self.pq_timebomb_enabled = CP.carFingerprint in PQ_CARS
 
   def update(self, CC, CS, ext_bus, now_nanos):
     actuators = CC.actuators
@@ -41,6 +48,10 @@ class CarController:
       #   * Don't send uninterrupted steering for > 360 seconds
       # MQB racks reset the uninterrupted steering timer after a single frame
       # of HCA disabled; this is done whenever output happens to be zero.
+
+      # rick - reset counter
+      if self.pq_timebomb_enabled and not CC.latActive:
+        self.pq_timebomb_counter = 0
 
       if CC.latActive:
         new_steer = int(round(actuators.steer * self.CCP.STEER_MAX))
@@ -62,6 +73,21 @@ class CarController:
         self.hca_frame_timer_running = 0
 
       self.eps_timer_soft_disable_alert = self.hca_frame_timer_running > self.CCP.STEER_TIME_ALERT / DT_CTRL
+
+      if self.pq_timebomb_enabled and CC.latActive:
+        self.pq_timebomb_counter += 1
+
+        # start warning
+        if self.pq_timebomb_counter >= PQ_TIMEBOMB_BYPASS_WARNING:
+          self.eps_timer_soft_disable_alert = True
+        # disable steering
+        if self.pq_timebomb_counter >= PQ_TIMEBOMB_BYPASS_START:
+          apply_steer = 0
+          hca_enabled = False
+        # reset counter
+        if self.pq_timebomb_counter >= PQ_TIMEBOMB_BYPASS_END:
+          self.pq_timebomb_counter = 0
+
       self.apply_steer_last = apply_steer
       can_sends.append(self.CCS.create_steering_control(self.packer_pt, CANBUS.pt, apply_steer, hca_enabled))
 
