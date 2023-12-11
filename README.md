@@ -50,7 +50,6 @@ I encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for 
 
 ## Configuration
 
-* Considering performance issues, I have turned off all logging-related services. If anyone needs to use them, they can use `dp_logging` parameter to enable them.
 * If you are not a Comma Two device, you can use the `dp_no_fan_ctrl` parameter to disable fan-related detection and control.
 
 =======================
