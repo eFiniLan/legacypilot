@@ -42,6 +42,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_ai.png",
     },
     {
+      "dp_logging",
+      tr("Enable Logging"),
+      tr("When enabled, openpilot will log your car stats as well as all the camera footages.\nLogging with the 0.8.16 model may have performance issues, so do not use both features at the same time unless you know what you are doing.\nReboot required."),
+      "../assets/offroad/icon_database.png",
+    },
+    {
       "ExperimentalLongitudinalEnabled",
       tr("openpilot Longitudinal Control (Alpha)"),
       QString("<b>%1</b><br><br>%2")
