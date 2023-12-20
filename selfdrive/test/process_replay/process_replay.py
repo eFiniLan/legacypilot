@@ -589,10 +589,13 @@ def get_custom_params_from_lr(lr: Union[LogReader, List[capnp._DynamicStructRead
   assert initial_state in ["first", "last"]
   msg_index = 0 if initial_state == "first" else -1
 
-  assert len(car_params) > 0, "carParams required for initial state of liveParameters and liveTorqueCarParams"
+  assert len(car_params) > 0, "carParams required for initial state of liveParameters and CarParamsPrevRoute"
   CP = car_params[msg_index].carParams
 
-  custom_params = {}
+  custom_params = {
+    "CarParamsPrevRoute": CP.as_builder().to_bytes()
+  }
+
   if len(live_calibration) > 0:
     custom_params["CalibrationParams"] = live_calibration[msg_index].as_builder().to_bytes()
   if len(live_parameters) > 0:
