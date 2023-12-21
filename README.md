@@ -30,7 +30,7 @@ I have decided to make this side project open source for users who wish to:
 
 By making this project open source, I hope to alleviate some of the frustration and complaints about not being able to access the dragonpilot source code.
 
-I encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for the best and up-to-date openpilot experience.
+I encourage users to consider purchasing a [comma 3x](https://shop.comma.ai) for the best and up-to-date openpilot experience.
 
 
 ## Limitations
@@ -43,13 +43,14 @@ I encourage users to consider purchasing a [comma 3](https://shop.comma.ai) for 
 * Services are not optimized for resource usage, and using all services may result in overheating issues.
 * Language files can only be generated in a PC due to missing Qt5 tools.
 * webjoystick is disabled as it requires additional python modules. (aiohttp and others)
-* Starting from August 7th, 2023, comma has removed ESP/GPS support from Pandas. You can find more details about this change in this [link](https://github.com/commaai/panda/commit/c66b98b2a67441faa4cfcd36c3c9d9f90474cd08).
+* Starting from August 7th, 2023, comma has removed ESP/GPS support from Panda. You can find more details about this change in this [link](https://github.com/commaai/panda/commit/c66b98b2a67441faa4cfcd36c3c9d9f90474cd08).
   * Going forward, I will focus solely on maintaining the safety aspects of the code, ensuring that vehicle support and safety declarations remain up to date.
 * For safety concern, End-to-End / vision only longitudinal control only available in 0.8.16 driving model.
 
 
 ## Configuration
 
+* For research purposes, the INDI and LQR lateral controllers have been restored. Please use the `dp_lat_controller` parameter to override the default controller (0 = DEFAULT, 1 = INDI, 2 = LQR).
 * If you are not a Comma Two device, you can use the `dp_no_fan_ctrl` parameter to disable fan-related detection and control.
 
 =======================

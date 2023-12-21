@@ -15,6 +15,7 @@ from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, sca
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_friction
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
+from openpilot.common.params import Params
 
 ButtonType = car.CarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
@@ -100,6 +101,13 @@ class CarInterfaceBase(ABC):
   def get_params(cls, candidate: str, fingerprint: Dict[int, Dict[int, int]], car_fw: List[car.CarParams.CarFw], experimental_long: bool, docs: bool):
     ret = CarInterfaceBase.get_std_params(candidate)
     ret = cls._get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs)
+
+    # rick - override lat controller
+    dp_lat_controller = int(Params().get("dp_lat_controller"))
+    if dp_lat_controller == 1: # indi
+      ret = cls.configure_indi_tune(ret.lateralTuning)
+    elif dp_lat_controller == 2: # lqr
+      ret = cls.configure_lqr_tune(ret.lateralTuning)
 
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:
@@ -190,6 +198,30 @@ class CarInterfaceBase(ABC):
     tune.torque.latAccelFactor = params['LAT_ACCEL_FACTOR']
     tune.torque.latAccelOffset = 0.0
     tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
+
+  @staticmethod
+  def configure_lqr_tune(tune):
+    tune.init('lqr')
+    tune.lqr.scale = 1500.0
+    tune.lqr.ki = 0.05
+    tune.lqr.a = [0., 1., -0.22619643, 1.21822268]
+    tune.lqr.b = [-1.92006585e-04, 3.95603032e-05]
+    tune.lqr.c = [1., 0.]
+    tune.lqr.k = [-110.73572306, 451.22718255]
+    tune.lqr.l = [0.3233671, 0.3185757]
+    tune.lqr.dcGain = 0.002237852961363602
+
+  @staticmethod
+  def configure_indi_tune(tune):
+    tune.init('indi')
+    tune.indi.innerLoopGainBP = [0.]
+    tune.indi.innerLoopGainV = [4.0]
+    tune.indi.outerLoopGainBP = [0.]
+    tune.indi.outerLoopGainV = [3.0]
+    tune.indi.timeConstantBP = [0.]
+    tune.indi.timeConstantV = [1.0]
+    tune.indi.actuatorEffectivenessBP = [0.]
+    tune.indi.actuatorEffectivenessV = [1.0]
 
   @abstractmethod
   def _update(self, c: car.CarControl) -> car.CarState:
