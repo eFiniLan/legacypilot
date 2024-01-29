@@ -1,7 +1,8 @@
 import os
 import time
 import numpy as np
-import tomllib
+# rick - use tomli instead of tomllib
+import tomli as tomllib
 from abc import abstractmethod, ABC
 from enum import StrEnum
 from typing import Any, Dict, Optional, Tuple, List, Callable
