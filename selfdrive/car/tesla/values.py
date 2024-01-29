@@ -1,6 +1,6 @@
 # ruff: noqa: E501
 from collections import namedtuple
-from strenum import StrEnum
+from enum import StrEnum
 from typing import Dict, List, Union
 
 from cereal import car

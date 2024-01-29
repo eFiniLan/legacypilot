@@ -1,6 +1,6 @@
 # ruff: noqa: E501
 from dataclasses import dataclass, field
-from strenum import StrEnum
+from enum import StrEnum
 from typing import Dict, List, Optional, Union
 
 from cereal import car
