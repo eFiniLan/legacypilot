@@ -36,7 +36,7 @@ I encourage users to consider purchasing a [comma 3x](https://shop.comma.ai) for
 ## Limitations
 
 * On-road tests are conducted exclusively in a 2021 Toyota C-HR; other models may not perform properly.
-* CAN-FD and BODY features are not supported due to outdated libraries in EON/C2 firmware.
+* ~~CAN-FD and BODY features are not supported due to outdated libraries in EON/C2 firmware.~~
 * The driving AI model remains in version 0.8.16, as porting TinyGrad/PyOpenCL requires significant effort.
 * The driver monitoring AI model remains in version 0.8.13.
 * Navigation On Openpilot (NOO) is not supported, as it requires a newer driving model that is not currently available in legacypilot.
@@ -52,6 +52,9 @@ I encourage users to consider purchasing a [comma 3x](https://shop.comma.ai) for
 
 * For research purposes, the INDI and LQR lateral controllers have been restored. Please use the `dp_lat_controller` parameter to override the default controller (0 = DEFAULT, 1 = INDI, 2 = LQR).
 * If you are not a Comma Two device, you can use the `dp_no_fan_ctrl` parameter to disable fan-related detection and control.
+* EON + Red Panda configuration has been tested and worked on my Toyota (CAN), so technically it should work on CAN-FD vehicles.
+  * Red Panda firmware needs to be pre-compiled on a PC and uploaded to `/data/openpilot/panda/board/obj/`.
+* BODY has been tested and is working.
 
 =======================
 
