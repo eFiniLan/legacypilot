@@ -4,7 +4,8 @@ import numpy as np
 # rick - use tomli instead of tomllib
 import tomli as tomllib
 from abc import abstractmethod, ABC
-from enum import StrEnum
+# rick - use strenum here instead, other places will use helper code in manager.py
+from strenum import StrEnum
 from typing import Any, Dict, Optional, Tuple, List, Callable
 
 from cereal import car
