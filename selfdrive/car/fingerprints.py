@@ -5,6 +5,7 @@ _FINGERPRINTS = get_interface_attr('FINGERPRINTS', combine_brands=True, ignore_n
 
 _DEBUG_ADDRESS = {1880: 8}   # reserved for debug purposes
 
+# rick - use Dict instead of dict (unsupported python 3.8 syntax)
 from typing import Dict
 def is_valid_for_fingerprint(msg, car_fingerprint: Dict[int, int]):
   adr = msg.address
