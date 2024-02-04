@@ -33,6 +33,9 @@ Panda::Panda(std::string serial, uint32_t bus_offset) : bus_offset(bus_offset) {
     hw_type = cereal::PandaState::PandaType::BLACK_PANDA;
   }
   #endif
+  if (hw_type == cereal::PandaState::PandaType::HW_TYPE_RED_PANDA || hw_type == cereal::PandaState::PandaType::HW_TYPE_RED_PANDA_V2) {
+    has_gps = false;
+  }
 
   has_rtc = (hw_type == cereal::PandaState::PandaType::UNO) ||
             (hw_type == cereal::PandaState::PandaType::DOS) ||
