@@ -290,7 +290,7 @@ class LongitudinalMpc:
     self.x0[1] = v
     self.x0[2] = a
     if abs(v_prev - v) > 2.:  # probably only helps if v < v_prev
-      for i in range(0, N+1):
+      for i in range(N+1):
         self.solver.set(i, 'x', self.x0)
 
   @staticmethod
@@ -396,7 +396,7 @@ class LongitudinalMpc:
 
     self.run()
     if (np.any(lead_xv_0[FCW_IDXS,0] - self.x_sol[FCW_IDXS,0] < CRASH_DISTANCE) and
-            radarstate.leadOne.modelProb > 0.9):
+      radarstate.leadOne.modelProb > 0.9):
       self.crash_cnt += 1
     else:
       self.crash_cnt = 0
@@ -407,7 +407,7 @@ class LongitudinalMpc:
       if any((lead_0_obstacle - get_safe_obstacle_distance(self.x_sol[:,1], t_follow))- self.x_sol[:,0] < 0.0):
         self.source = 'lead0'
       if any((lead_1_obstacle - get_safe_obstacle_distance(self.x_sol[:,1], t_follow))- self.x_sol[:,0] < 0.0) and \
-         (lead_1_obstacle[0] - lead_0_obstacle[0]):
+        (lead_1_obstacle[0] - lead_0_obstacle[0]):
         self.source = 'lead1'
 
   def run(self):

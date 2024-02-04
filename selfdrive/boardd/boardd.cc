@@ -589,9 +589,11 @@ void panda_state_thread(std::vector<Panda *> pandas, bool spoofing_started) {
 
 void peripheral_control_thread(Panda *panda, bool no_fan_control) {
   util::set_thread_name("boardd_peripheral_control");
-  // rick - a device with black panda = EON / LEON / clone 1.5
+  // rick - a device with black/red panda = EON / LEON / clone 1.5
   if (!Params().getBool("dp_no_fan_ctrl")) {
-    no_fan_control = panda->hw_type == cereal::PandaState::PandaType::BLACK_PANDA;
+    no_fan_control = panda->hw_type == cereal::PandaState::PandaType::BLACK_PANDA ||
+        panda->hw_type == cereal::PandaState::PandaType::RED_PANDA ||
+        panda->hw_type == cereal::PandaState::PandaType::RED_PANDA_V2;
     Params().putBool("dp_no_fan_ctrl", no_fan_control);
   }
 

@@ -32,6 +32,10 @@ Panda::Panda(std::string serial, uint32_t bus_offset) : bus_offset(bus_offset) {
     has_gps = hw_type == cereal::PandaState::PandaType::GREY_PANDA;
     hw_type = cereal::PandaState::PandaType::BLACK_PANDA;
   }
+  // rick - do it in defined(QCOM) only, otherwise has_gps is unused
+  if (hw_type == cereal::PandaState::PandaType::RED_PANDA || hw_type == cereal::PandaState::PandaType::RED_PANDA_V2) {
+    has_gps = false;
+  }
   #endif
 
   has_rtc = (hw_type == cereal::PandaState::PandaType::UNO) ||

@@ -5,7 +5,7 @@ from cereal import car
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.system.swaglog import cloudlog
-from openpilot.selfdrive.hybrid_modeld.constants import T_IDXS
+from openpilot.selfdrive.hybrid_modeld.constants import ModelConstants
 import cereal.messaging as messaging
 from openpilot.system.hardware import TICI
 
@@ -20,8 +20,8 @@ def cumtrapz(x, t):
   return np.concatenate([[0], np.cumsum(((x[0:-1] + x[1:])/2) * np.diff(t))])
 
 def publish_ui_plan(sm, pm, lateral_planner, longitudinal_planner):
-  plan_odo = cumtrapz(longitudinal_planner.v_desired_trajectory_full, T_IDXS)
-  model_odo = cumtrapz(lateral_planner.v_plan, T_IDXS)
+  plan_odo = cumtrapz(longitudinal_planner.v_desired_trajectory_full, ModelConstants.T_IDXS)
+  model_odo = cumtrapz(lateral_planner.v_plan, ModelConstants.T_IDXS)
 
   ui_send = messaging.new_message('uiPlan')
   ui_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'modelV2'])

@@ -24,7 +24,7 @@ class PointBuckets:
   def __init__(self, x_bounds: List[Tuple[float, float]], min_points: List[float], min_points_total: int, points_per_bucket: int, rowsize: int) -> None:
     self.x_bounds = x_bounds
     self.buckets = {bounds: NPQueue(maxlen=points_per_bucket, rowsize=rowsize) for bounds in x_bounds}
-    self.buckets_min_points = dict(zip(x_bounds, min_points, strict=True))
+    self.buckets_min_points = dict(zip(x_bounds, min_points))
     self.min_points_total = min_points_total
 
   def bucket_lengths(self) -> List[int]:
@@ -34,7 +34,7 @@ class PointBuckets:
     return sum(self.bucket_lengths())
 
   def is_valid(self) -> bool:
-    individual_buckets_valid = all(len(v) >= min_pts for v, min_pts in zip(self.buckets.values(), self.buckets_min_points.values(), strict=True))
+    individual_buckets_valid = all(len(v) >= min_pts for v, min_pts in zip(self.buckets.values(), self.buckets_min_points.values()))
     total_points_valid = self.__len__() >= self.min_points_total
     return individual_buckets_valid and total_points_valid
 
