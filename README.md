@@ -56,9 +56,9 @@ I encourage users to consider purchasing a [comma 3x](https://shop.comma.ai) for
 
 
 ## Red Panda (a.k.a. CAN-FD support)
-* The EON + Red Panda configuration has been tested and worked on my Toyota (CAN), so technically it should work on CAN-FD vehicles. However, there are a couple of considerations:
-  * C2 will not function without hardware modification. You cannot connect the Red Panda directly to the C2 USB port.
-  * If any changes are made to the Red Panda firmware, the firmware needs to be pre-compiled on a PC and then uploaded to `/data/openpilot/panda/board/obj/`.
+The EON + Red Panda configuration has been tested and worked on [my Toyota](https://youtu.be/KgrI2Ley_Nk) (CAN), so technically it should work on CAN-FD vehicles. However, there are a couple of considerations:
+* C2 will not function without hardware modification. You cannot connect the Red Panda directly to the C2 USB port.
+* If any changes are made to the Red Panda firmware, the firmware needs to be pre-compiled on a PC and then uploaded to `/data/openpilot/panda/board/obj/`.
 * Please be aware that you may encounter **CANBUS disconnection errors**. If this occurs, simply **power cycle BOTH your device and Red Panda**.
 
 
