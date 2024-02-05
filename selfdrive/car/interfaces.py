@@ -108,9 +108,9 @@ class CarInterfaceBase(ABC):
     # rick - override lat controller
     dp_lat_controller = int(Params().get("dp_lat_controller"))
     if dp_lat_controller == 1:  # indi
-      ret = cls.configure_indi_tune(ret.lateralTuning)
+      cls.configure_indi_tune(ret.lateralTuning)
     elif dp_lat_controller == 2:  # lqr
-      ret = cls.configure_lqr_tune(ret.lateralTuning)
+      cls.configure_lqr_tune(ret.lateralTuning)
 
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:
