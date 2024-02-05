@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from enum import StrEnum
+# from enum import StrEnum
+from strenum import StrEnum
 from typing import Dict, List, Optional, Union
 
 from cereal import car

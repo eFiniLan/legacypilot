@@ -198,13 +198,6 @@ def manager_thread() -> None:
 
 
 def main() -> None:
-  # rick - use strenum.StrEnum istead of enum.StrEnum (which is missing in python 3.8)
-  # Check if the enum module is already imported
-  if 'enum' in sys.modules:
-    # If enum module is imported, replace StrEnum in the enum module
-    from strenum import StrEnum
-    sys.modules['enum'].StrEnum = StrEnum
-
   prepare_only = os.getenv("PREPAREONLY") is not None
 
   manager_init()

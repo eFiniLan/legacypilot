@@ -1,4 +1,5 @@
-from enum import IntFlag, StrEnum
+from enum import IntFlag#, StrEnum
+from strenum import StrEnum
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
