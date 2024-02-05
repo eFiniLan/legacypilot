@@ -11,7 +11,7 @@ from pathlib import Path
 
 import cereal.messaging as messaging
 from cereal import log
-from cereal.services import service_list
+from cereal.services import SERVICE_LIST
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 from openpilot.common.timeout import Timeout
@@ -26,8 +26,8 @@ from openpilot.common.transformations.camera import eon_f_frame_size, tici_f_fra
 
 SentinelType = log.Sentinel.SentinelType
 
-CEREAL_SERVICES = [f for f in log.Event.schema.union_fields if f in service_list
-                   and service_list[f].should_log and "encode" not in f.lower()]
+CEREAL_SERVICES = [f for f in log.Event.schema.union_fields if f in SERVICE_LIST
+                   and SERVICE_LIST[f].should_log and "encode" not in f.lower()]
 
 
 class TestLoggerd(unittest.TestCase):
@@ -179,8 +179,8 @@ class TestLoggerd(unittest.TestCase):
         self.assertEqual(expected_val, bootlog_val)
 
   def test_qlog(self):
-    qlog_services = [s for s in CEREAL_SERVICES if service_list[s].decimation is not None]
-    no_qlog_services = [s for s in CEREAL_SERVICES if service_list[s].decimation is None]
+    qlog_services = [s for s in CEREAL_SERVICES if SERVICE_LIST[s].decimation is not None]
+    no_qlog_services = [s for s in CEREAL_SERVICES if SERVICE_LIST[s].decimation is None]
 
     services = random.sample(qlog_services, random.randint(2, min(10, len(qlog_services)))) + \
                random.sample(no_qlog_services, random.randint(2, min(10, len(no_qlog_services))))
@@ -227,7 +227,7 @@ class TestLoggerd(unittest.TestCase):
         self.assertEqual(recv_cnt, 0, f"got {recv_cnt} {s} msgs in qlog")
       else:
         # check logged message count matches decimation
-        expected_cnt = (len(msgs) - 1) // service_list[s].decimation + 1
+        expected_cnt = (len(msgs) - 1) // SERVICE_LIST[s].decimation + 1
         self.assertEqual(recv_cnt, expected_cnt, f"expected {expected_cnt} msgs for {s}, got {recv_cnt}")
 
   def test_rlog(self):
