@@ -28,8 +28,11 @@ def jpeg_write(fn, dat):
   img.save(fn, "JPEG")
 
 
-def extract_image(buf, w, h, stride):
-  img = np.hstack([buf[i * stride:i * stride + 3 * w] for i in range(h)])
+def extract_image(buf):
+  w = buf.width
+  h = buf.height
+  stride = buf.stride
+  img = np.hstack([buf.data[i * stride:i * stride + 3 * w] for i in range(h)])
   b = img[::3].reshape(h, w)
   g = img[1::3].reshape(h, w)
   r = img[2::3].reshape(h, w)
@@ -63,10 +66,10 @@ def get_snapshots(frame="roadCameraState", front_frame="driverCameraState", focu
   rear, front = None, None
   if frame is not None:
     c = vipc_clients[frame]
-    rear = extract_image(c.recv(), c.width, c.height, c.stride)
+    rear = extract_image(c.recv())
   if front_frame is not None:
     c = vipc_clients[front_frame]
-    front = extract_image(c.recv(), c.width, c.height, c.stride)
+    front = extract_image(c.recv())
   return rear, front
 
 
