@@ -13,7 +13,7 @@ V_CRUISE_MIN = 8
 V_CRUISE_MAX = 145
 V_CRUISE_UNSET = 255
 V_CRUISE_INITIAL = 40
-V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 40
+V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 55
 IMPERIAL_INCREMENT = 1.6  # should be CV.MPH_TO_KPH, but this causes rounding errors
 
 MIN_SPEED = 1.0
@@ -22,7 +22,6 @@ CAR_ROTATION_RADIUS = 0.0
 
 # EU guidelines
 MAX_LATERAL_JERK = 5.0
-
 MAX_VEL_ERR = 5.0
 
 ButtonEvent = car.CarState.ButtonEvent
@@ -199,6 +198,16 @@ def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates):
 
   return safe_desired_curvature, safe_desired_curvature_rate
 
+
+# rick - we dont need this as it is for the latest model (0.9.5+) + controlsd
+def clip_curvature(v_ego, prev_curvature, new_curvature):
+  v_ego = max(MIN_SPEED, v_ego)
+  max_curvature_rate = MAX_LATERAL_JERK / (v_ego**2) # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
+  safe_desired_curvature = clip(new_curvature,
+                                prev_curvature - max_curvature_rate * DT_CTRL,
+                                prev_curvature + max_curvature_rate * DT_CTRL)
+
+  return safe_desired_curvature
 
 def get_friction(lateral_accel_error: float, lateral_accel_deadzone: float, friction_threshold: float,
                  torque_params: car.CarParams.LateralTorqueTuning, friction_compensation: bool) -> float:
