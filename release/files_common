@@ -153,6 +153,7 @@ common/version.h
 common/prefix.h
 common/swaglog.h
 common/swaglog.cc
+common/swaglog.py
 common/statlog.h
 common/statlog.cc
 common/util.cc
